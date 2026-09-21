@@ -1,16 +1,16 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-display text-2xl font-bold text-slate-900 tracking-tight">
             {{ __('Applications') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm ring-1 ring-slate-900/5 rounded-xl p-6">
+            <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <form method="GET" action="{{ route('coordinator.applications.index') }}" class="mb-4 flex items-center gap-3">
-                    <label for="status" class="text-sm text-gray-600">{{ __('Filter by status') }}</label>
-                    <select id="status" name="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" onchange="this.form.submit()">
+                    <label for="status" class="text-sm text-slate-600">{{ __('Filter by status') }}</label>
+                    <select id="status" name="status" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm" onchange="this.form.submit()">
                         <option value="">{{ __('All') }}</option>
                         @foreach ($statuses as $status)
                             <option value="{{ $status->value }}" @selected($selectedStatus === $status->value)>{{ $status->label() }}</option>
@@ -19,11 +19,11 @@
                 </form>
 
                 @if ($applications->isEmpty())
-                    <p class="text-gray-500">{{ __('No applications found.') }}</p>
+                    <p class="text-slate-500">{{ __('No applications found.') }}</p>
                 @else
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <div class="overflow-x-auto"><table class="data-table">
                         <thead>
-                            <tr class="text-left text-xs font-medium text-gray-500 uppercase">
+                            <tr>
                                 <th class="px-4 py-2">{{ __('Student') }}</th>
                                 <th class="px-4 py-2">{{ __('Program') }}</th>
                                 <th class="px-4 py-2">{{ __('Semester') }}</th>
@@ -31,15 +31,15 @@
                                 <th class="px-4 py-2"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody>
                             @foreach ($applications as $application)
                                 <tr>
                                     <td class="px-4 py-2">{{ $application->student->name }}</td>
                                     <td class="px-4 py-2">{{ $application->program->name }}</td>
                                     <td class="px-4 py-2">{{ $application->semester }}</td>
                                     <td class="px-4 py-2">
-                                        <span class="px-2.5 py-1 text-xs font-medium rounded-full {{ $application->status->badgeClasses() }}">
-                                            {{ $application->status->label() }}
+                                        <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ring-1 ring-inset ring-black/5 {{ $application->status->badgeClasses() }}">
+                                            <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current"></span>{{ $application->status->label() }}
                                         </span>
                                     </td>
                                     <td class="px-4 py-2">
@@ -48,7 +48,7 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                    </table></div>
                 @endif
             </div>
         </div>

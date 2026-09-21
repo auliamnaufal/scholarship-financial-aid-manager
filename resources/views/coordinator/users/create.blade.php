@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-display text-2xl font-bold text-slate-900 tracking-tight">
             {{ __('New Staff Account') }}
         </h2>
     </x-slot>
@@ -37,11 +37,11 @@
                     <div class="mt-4">
                         <x-input-label :value="__('Roles')" />
                         <label class="flex items-center mt-2 text-sm">
-                            <input type="checkbox" name="roles[]" value="reviewer" class="rounded border-gray-300 text-indigo-600 shadow-sm" {{ in_array('reviewer', old('roles', [])) ? 'checked' : '' }}>
+                            <input type="checkbox" name="roles[]" value="reviewer" class="rounded border-slate-300 text-indigo-600 shadow-sm" {{ in_array('reviewer', old('roles', [])) ? 'checked' : '' }}>
                             <span class="ms-2">{{ __('Reviewer') }}</span>
                         </label>
                         <label class="flex items-center mt-2 text-sm">
-                            <input type="checkbox" name="roles[]" value="coordinator" class="rounded border-gray-300 text-indigo-600 shadow-sm" {{ in_array('coordinator', old('roles', [])) ? 'checked' : '' }}>
+                            <input type="checkbox" name="roles[]" value="coordinator" class="rounded border-slate-300 text-indigo-600 shadow-sm" {{ in_array('coordinator', old('roles', [])) ? 'checked' : '' }}>
                             <span class="ms-2">{{ __('Moderator') }}</span>
                         </label>
                         <x-input-error :messages="$errors->get('roles')" class="mt-2" />

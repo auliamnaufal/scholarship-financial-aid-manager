@@ -11,7 +11,7 @@
 
     <div class="mt-4">
         <x-input-label for="type" :value="__('Type')" />
-        <select id="type" name="type" x-model="type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+        <select id="type" name="type" x-model="type" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm" required>
             <option value="need_based" @selected(old('type', $program?->type?->value) === 'need_based')>{{ __('Need-based') }}</option>
             <option value="merit_based" @selected(old('type', $program?->type?->value) === 'merit_based')>{{ __('Merit-based') }}</option>
         </select>
@@ -50,7 +50,7 @@
 
     <div class="mt-4">
         <x-input-label for="description" :value="__('Description')" />
-        <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('description', $program?->description) }}</textarea>
+        <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm">{{ old('description', $program?->description) }}</textarea>
         <x-input-error :messages="$errors->get('description')" class="mt-2" />
     </div>
 </div>
