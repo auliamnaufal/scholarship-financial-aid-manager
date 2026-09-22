@@ -36,6 +36,44 @@
         @apply transition-colors hover:bg-slate-50;
     }
 
+    /**
+     * Squeeze carousel geometry.
+     *
+     * The component passes its settings in as `--sq-*-in` and the derived
+     * values are worked out here, because a custom property set inline beats
+     * any stylesheet rule — inputs inline, derived values in CSS, so the
+     * container query below has something it can actually override.
+     */
+    .sq-carousel {
+        --sq-h: var(--sq-h-in);
+        --sq-gap: var(--sq-gap-in);
+        --sq-slat: var(--sq-slat-in);
+        --sq-slat-gap: var(--sq-slat-gap-in);
+
+        /* A 16:9 block sets both the open card and the size every picture is
+           drawn at, so a picture keeps one scale however narrow its card gets. */
+        --sq-hero: calc(var(--sq-h) * 16 / 9);
+
+        /* Whatever is left for the four columns once the open card, the slats
+           and the gaps are paid for. Reads the carousel's width, not the window's. */
+        --sq-room: calc(
+            100cqi - var(--sq-hero) - var(--sq-slats) * var(--sq-slat-gap) - var(--sq-gaps) * var(--sq-gap) -
+                var(--sq-slats) * var(--sq-slat)
+        );
+    }
+
+    /* Too narrow for a tail: the row becomes one full-width panel that squeezes
+       into the next one instead of sliding along beside it. */
+    @container (max-width: 700px) {
+        .sq-carousel {
+            --sq-gap: 0px;
+            --sq-slat: 0px;
+            --sq-slat-gap: 0px;
+            --sq-hero: 100cqi;
+            --sq-room: 0px;
+        }
+    }
+
     .text-gradient {
         @apply bg-gradient-to-r from-indigo-200 via-white to-fuchsia-200 bg-clip-text text-transparent;
     }
