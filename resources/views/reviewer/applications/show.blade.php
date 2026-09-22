@@ -45,15 +45,43 @@
                 </dl>
             </div>
 
+            <x-card>
+                <x-requirement-checklist :application="$application" />
+            </x-card>
+
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <h3 class="text-lg font-medium mb-4">{{ __('Your Review') }}</h3>
 
-                @if ($myReview)
+                @if ($myReview && $myReview->id && auth()->user()->can('update', $myReview))
+                    {{-- Revisable while the application is still under review; once the
+                         coordinator decides, the score they decided on is locked. --}}
+                    <form method="POST" action="{{ route('reviewer.reviews.update', $myReview) }}">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <x-input-label for="score" :value="__('Score (0-100)')" />
+                            <x-text-input id="score" name="score" type="number" min="0" max="100" class="mt-1 block w-full" :value="old('score', $myReview->score)" required />
+                            <x-input-error :messages="$errors->get('score')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
+                            <x-input-label for="comments" :value="__('Comments')" />
+                            <textarea id="comments" name="comments" rows="4" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm">{{ old('comments', $myReview->comments) }}</textarea>
+                            <x-input-error :messages="$errors->get('comments')" class="mt-2" />
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3 mt-6">
+                            <p class="mr-auto text-sm text-slate-500">{{ __('You can revise this until the coordinator decides.') }}</p>
+                            <x-primary-button>{{ __('Update Review') }}</x-primary-button>
+                        </div>
+                    </form>
+                @elseif ($myReview)
                     <p class="text-slate-700">{{ __('Score') }}: {{ $myReview->score }}</p>
                     @if ($myReview->comments)
                         <p class="text-slate-600 mt-1">{{ $myReview->comments }}</p>
                     @endif
-                    <p class="text-sm text-slate-500 mt-2">{{ __('You have already reviewed this application.') }}</p>
+                    <p class="text-sm text-slate-500 mt-2">{{ __('The coordinator has decided, so this review is now locked.') }}</p>
                 @elseif ($application->status->value !== 'under_review')
                     <p class="text-slate-500">{{ __('This application is not currently under review.') }}</p>
                 @else

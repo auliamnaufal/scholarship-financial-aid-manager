@@ -58,6 +58,13 @@
                     </svg>
                     {{ __('My Applications') }}
                 </x-nav-link>
+                <x-nav-link :href="route('student.biodata.edit')" :active="request()->routeIs('student.biodata.*')">
+                    <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <circle cx="12" cy="8" r="3.25" />
+                        <path stroke-linecap="round" d="M5 20c0-3.6 3.1-6.5 7-6.5s7 2.9 7 6.5" />
+                    </svg>
+                    {{ __('My Biodata') }}
+                </x-nav-link>
             @endrole
 
             @role('reviewer')

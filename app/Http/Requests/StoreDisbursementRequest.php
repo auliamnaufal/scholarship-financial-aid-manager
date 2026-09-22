@@ -43,6 +43,40 @@ class StoreDisbursementRequest extends FormRequest
             if ($duplicate) {
                 $validator->errors()->add('seq_no', 'A disbursement with this sequence number already exists for this application.');
             }
+
+            $this->checkFundsAvailable($validator, $application);
         });
+    }
+
+    /**
+     * A payment may not take the student past what they were awarded, nor the
+     * scholarship past its budget. Both figures are derived from the
+     * disbursement rows, so this is the only place they can be overdrawn.
+     */
+    private function checkFundsAvailable(Validator $validator, Application $application): void
+    {
+        $amount = (float) $this->input('amount');
+
+        if ($amount <= 0) {
+            return;
+        }
+
+        $owedToStudent = $application->remainingAward();
+
+        if ($owedToStudent !== null && $amount > $owedToStudent) {
+            $validator->errors()->add('amount', sprintf(
+                'Only %s is still owed on this application.',
+                number_format($owedToStudent, 2),
+            ));
+        }
+
+        $leftInBudget = $application->program->remainingBudget();
+
+        if ($amount > $leftInBudget) {
+            $validator->errors()->add('amount', sprintf(
+                'The program has only %s left in its budget.',
+                number_format($leftInBudget, 2),
+            ));
+        }
     }
 }

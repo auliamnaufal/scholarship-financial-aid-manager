@@ -28,10 +28,44 @@
                             <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ring-1 ring-inset ring-black/5 {{ $application->status->badgeClasses() }}">
                                 <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current"></span>{{ $application->status->label() }}
                             </span>
+                            @if ($application->cancelled_at)
+                                <span class="block mt-1 text-xs text-slate-500">{{ __('Withdrawn on') }} {{ $application->cancelled_at->format('d M Y') }}</span>
+                            @endif
                         </dd>
                     </div>
+                    @if ($application->awarded_amount !== null)
+                        <div>
+                            <dt class="text-slate-500">{{ __('Awarded') }}</dt>
+                            <dd>{{ number_format((float) $application->awarded_amount, 2) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-slate-500">{{ __('Still to be paid') }}</dt>
+                            <dd class="font-medium text-slate-900">{{ number_format($application->remainingAward(), 2) }}</dd>
+                        </div>
+                    @endif
                 </dl>
+
+                @can('cancel', $application)
+                    <form
+                        method="POST"
+                        action="{{ route('student.applications.cancel', $application) }}"
+                        class="mt-6 border-t border-slate-200 pt-4"
+                        onsubmit="return confirm('{{ __('Withdraw this application? You cannot undo this, but you may apply again while the scholarship is still open.') }}')"
+                    >
+                        @csrf
+                        <button type="submit" class="text-sm font-medium text-red-600 hover:underline">
+                            {{ __('Withdraw this application') }}
+                        </button>
+                        <p class="mt-1 text-xs text-slate-500">
+                            {{ __('You can withdraw until the coordinator makes a decision.') }}
+                        </p>
+                    </form>
+                @endcan
             </div>
+
+            <x-card>
+                <x-requirement-checklist :application="$application" />
+            </x-card>
 
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <h3 class="text-lg font-medium mb-4">{{ __('Review Feedback') }}</h3>

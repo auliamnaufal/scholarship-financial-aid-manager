@@ -25,7 +25,12 @@ class ApplicationController extends Controller
     {
         $this->authorize('view', $application);
 
-        $application->load(['student.studentProfile', 'program', 'reviews.reviewer']);
+        $application->load([
+            'student.studentProfile',
+            'program.requirements.requirementType',
+            'documents.requirementType',
+            'reviews.reviewer',
+        ]);
 
         return view('reviewer.applications.show', compact('application'));
     }

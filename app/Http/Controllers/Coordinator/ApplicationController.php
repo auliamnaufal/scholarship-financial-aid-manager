@@ -34,16 +34,36 @@ class ApplicationController extends Controller
     {
         $this->authorize('view', $application);
 
-        $application->load(['student.studentProfile', 'program', 'reviews.reviewer', 'disbursements']);
+        $application->load([
+            'student.studentProfile',
+            'program.requirements.requirementType',
+            'documents.requirementType',
+            'reviews.reviewer',
+            'disbursements',
+        ]);
 
         return view('coordinator.applications.show', compact('application'));
     }
 
-    public function approve(Application $application): RedirectResponse
+    public function approve(Request $request, Application $application): RedirectResponse
     {
         $this->authorize('decide', $application);
 
-        $application->update(['status' => ApplicationStatus::Approved]);
+        $validated = $request->validate([
+            // What the student is promised. Disbursements are then checked
+            // against it, so the total paid can never exceed the award.
+            'awarded_amount' => [
+                'required', 'numeric', 'min:0.01',
+                'max:'.$application->program->remainingBudget(),
+            ],
+        ], [
+            'awarded_amount.max' => 'The program has only :max left in its budget.',
+        ]);
+
+        $application->update([
+            'status' => ApplicationStatus::Approved,
+            'awarded_amount' => $validated['awarded_amount'],
+        ]);
 
         return redirect()
             ->route('coordinator.applications.show', $application)

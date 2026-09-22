@@ -12,6 +12,7 @@ use App\Models\Review;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
@@ -141,9 +142,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // 5b. What each applicant supplied. Text answers get real prose; file
-        // requirements get a row with the metadata but no stored file, since
-        // seeding cannot invent a PDF — the reviewer's checklist shows them as
-        // supplied, and the download link is only rendered when a path exists.
+        // requirements get a one-page placeholder PDF written to the private
+        // disk, so the reviewer's checklist and its download links behave in
+        // the demo exactly as they do for a real upload.
+        // A fresh seed starts from an empty upload directory; migrate:fresh
+        // clears the tables but leaves whatever a previous run wrote to disk.
+        Storage::disk('local')->deleteDirectory('applications');
+
         // $applications is a plain Collection, so the requirements are gathered
         // once here and keyed by programme rather than eager-loaded.
         $requirementsByProgram = Program::with('requirements.requirementType')
@@ -161,18 +166,27 @@ class DatabaseSeeder extends Seeder
 
                 $type = $requirement->requirementType;
 
+                if ($type->kind === RequirementKind::Text) {
+                    $application->documents()->create([
+                        'requirement_type_id' => $type->id,
+                        'body' => fake()->paragraphs(2, true),
+                    ]);
+
+                    continue;
+                }
+
+                $name = $type->slug.'-'.$application->student_id.'.pdf';
+                $path = "applications/{$application->id}/{$name}";
+                $pdf = $this->placeholderPdf($type->name, $application->student->name);
+
+                Storage::disk('local')->put($path, $pdf);
+
                 $application->documents()->create([
                     'requirement_type_id' => $type->id,
-                    'body' => $type->kind === RequirementKind::Text
-                        ? fake()->paragraphs(2, true)
-                        : null,
-                    'original_name' => $type->kind === RequirementKind::File
-                        ? $type->slug.'-'.$application->student_id.'.pdf'
-                        : null,
-                    'mime_type' => $type->kind === RequirementKind::File ? 'application/pdf' : null,
-                    'size_bytes' => $type->kind === RequirementKind::File
-                        ? fake()->numberBetween(80_000, 2_000_000)
-                        : null,
+                    'file_path' => $path,
+                    'original_name' => $name,
+                    'mime_type' => 'application/pdf',
+                    'size_bytes' => strlen($pdf),
                 ]);
             }
         }
@@ -247,5 +261,44 @@ class DatabaseSeeder extends Seeder
             'name' => 'Plain User',
             'email' => 'user@example.com',
         ]);
+    }
+
+    /**
+     * A one-page PDF standing in for an applicant's upload, written out by
+     * hand so the seeder needs no PDF library and the demo's download links
+     * open something real.
+     */
+    private function placeholderPdf(string $title, string $student): string
+    {
+        $line = str_replace(['(', ')', '\\'], '', "{$title} — {$student} (sample document)");
+
+        $objects = [
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        ];
+
+        $stream = "BT /F1 14 Tf 60 760 Td ({$line}) Tj ET";
+        $objects[] = "<< /Length ".strlen($stream)." >>\nstream\n{$stream}\nendstream";
+
+        $pdf = "%PDF-1.4\n";
+        $offsets = [];
+
+        foreach ($objects as $index => $object) {
+            $offsets[] = strlen($pdf);
+            $pdf .= ($index + 1)." 0 obj\n{$object}\nendobj\n";
+        }
+
+        $startxref = strlen($pdf);
+        $pdf .= "xref\n0 ".(count($objects) + 1)."\n0000000000 65535 f \n";
+
+        foreach ($offsets as $offset) {
+            $pdf .= sprintf("%010d 00000 n \n", $offset);
+        }
+
+        $pdf .= "trailer\n<< /Size ".(count($objects) + 1)." /Root 1 0 R >>\nstartxref\n{$startxref}\n%%EOF";
+
+        return $pdf;
     }
 }

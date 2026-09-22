@@ -46,12 +46,25 @@
                 </dl>
 
                 @can('decide', $application)
-                    <div class="flex gap-3 mt-6">
-                        <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}">
+                    @php $budgetLeft = $application->program->remainingBudget(); @endphp
+
+                    <div class="mt-6 border-t border-slate-200 pt-6">
+                        <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}" class="flex flex-wrap items-end gap-3">
                             @csrf
+                            <div>
+                                <x-input-label for="awarded_amount" :value="__('Amount to award')" />
+                                <x-text-input id="awarded_amount" name="awarded_amount" type="number" step="0.01" min="0.01"
+                                    max="{{ $budgetLeft }}" class="mt-1 block w-48" :value="old('awarded_amount')" required />
+                                <p class="mt-1 text-xs text-slate-500">
+                                    {{ __('Budget left in this program:') }} {{ number_format($budgetLeft, 2) }}
+                                </p>
+                            </div>
                             <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm transition hover:bg-emerald-500 text-sm font-medium">{{ __('Approve') }}</button>
                         </form>
-                        <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}">
+
+                        <x-input-error :messages="$errors->get('awarded_amount')" class="mt-2" />
+
+                        <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}" class="mt-4">
                             @csrf
                             <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg shadow-sm transition hover:bg-red-500 text-sm font-medium">{{ __('Reject') }}</button>
                         </form>
@@ -79,8 +92,35 @@
                 @endif
             </div>
 
+            <x-card>
+                <x-requirement-checklist :application="$application" />
+            </x-card>
+
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <h3 class="text-lg font-medium mb-4">{{ __('Disbursements') }}</h3>
+
+                @if ($application->awarded_amount !== null)
+                    <dl class="mb-4 grid grid-cols-3 gap-4 rounded-xl bg-slate-50 p-4 text-sm">
+                        <div>
+                            <dt class="text-slate-500">{{ __('Awarded') }}</dt>
+                            <dd class="font-medium text-slate-900">{{ number_format((float) $application->awarded_amount, 2) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-slate-500">{{ __('Paid so far') }}</dt>
+                            <dd class="font-medium text-slate-900">{{ number_format($application->disbursedTotal(), 2) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-slate-500">{{ __('Still to pay') }}</dt>
+                            <dd class="font-medium text-indigo-700">{{ number_format($application->remainingAward(), 2) }}</dd>
+                        </div>
+                    </dl>
+
+                    @unless ($application->student->studentProfile?->hasBankAccount())
+                        <p class="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                            {{ __('This student has no bank account on file, so there is nowhere to send the money.') }}
+                        </p>
+                    @endunless
+                @endif
 
                 @if ($application->disbursements->isNotEmpty())
                     <div class="overflow-x-auto"><table class="data-table mb-4">

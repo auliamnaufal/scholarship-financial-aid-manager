@@ -39,6 +39,17 @@ class ApplicationPolicy
             && $application->status === ApplicationStatus::Submitted;
     }
 
+    /**
+     * A student may withdraw while their application is still waiting or being
+     * looked at. Once the coordinator has decided, it is history — and the
+     * decision may already have money attached to it.
+     */
+    public function cancel(User $user, Application $application): bool
+    {
+        return $application->student_id === $user->id
+            && $application->status->isOpen();
+    }
+
     public function claim(User $user, Application $application): bool
     {
         return $user->hasRole('reviewer')

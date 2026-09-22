@@ -6,6 +6,7 @@ use App\Http\Controllers\Coordinator\DisbursementController;
 use App\Http\Controllers\Coordinator\ProgramController as CoordinatorProgramController;
 use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentController;
 use App\Http\Controllers\Coordinator\UserController as CoordinatorUserController;
+use App\Http\Controllers\ApplicationDocumentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgramController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Reviewer\ApplicationController as ReviewerApplicationCo
 use App\Http\Controllers\Reviewer\DashboardController as ReviewerDashboardController;
 use App\Http\Controllers\Reviewer\ReviewController;
 use App\Http\Controllers\Student\ApplicationController as StudentApplicationController;
+use App\Http\Controllers\Student\BiodataController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +26,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Uploads are private; the controller checks the application's own policy
+    // before streaming one, so students, reviewers and the owning coordinator
+    // all reach them through the same gate.
+    Route::get('/documents/{document}', [ApplicationDocumentController::class, 'show'])->name('documents.show');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -34,9 +41,12 @@ Route::middleware(['auth', 'verified', 'role:student'])
     ->name('student.')
     ->group(function () {
         Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/biodata', [BiodataController::class, 'edit'])->name('biodata.edit');
+        Route::put('/biodata', [BiodataController::class, 'update'])->name('biodata.update');
         Route::get('/programs/{program}/apply', [StudentApplicationController::class, 'create'])->name('applications.create');
         Route::post('/applications', [StudentApplicationController::class, 'store'])->name('applications.store');
         Route::get('/applications/{application}', [StudentApplicationController::class, 'show'])->name('applications.show');
+        Route::post('/applications/{application}/cancel', [StudentApplicationController::class, 'cancel'])->name('applications.cancel');
     });
 
 Route::middleware(['auth', 'verified', 'role:reviewer'])
@@ -47,6 +57,7 @@ Route::middleware(['auth', 'verified', 'role:reviewer'])
         Route::post('/applications/{application}/claim', [ReviewerApplicationController::class, 'claim'])->name('applications.claim');
         Route::get('/applications/{application}', [ReviewerApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     });
 
 Route::middleware(['auth', 'verified', 'role:coordinator'])
