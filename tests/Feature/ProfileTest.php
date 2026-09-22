@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -76,7 +77,14 @@ class ProfileTest extends TestCase
             ->assertRedirect('/');
 
         $this->assertGuest();
-        $this->assertNull($user->fresh());
+
+        // Accounts are archived rather than erased, so an application's
+        // reviews and disbursement records keep the student they belong to.
+        $this->assertSoftDeleted($user);
+
+        // The soft-delete scope reaches the auth provider's own lookups, so an
+        // archived account can no longer sign in.
+        $this->assertFalse(Auth::attempt(['email' => $user->email, 'password' => 'password']));
     }
 
     public function test_correct_password_must_be_provided_to_delete_account(): void

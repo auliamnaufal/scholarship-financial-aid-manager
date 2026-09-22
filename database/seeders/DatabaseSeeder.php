@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\RequirementKind;
 use App\Models\Application;
 use App\Models\GuardianPhone;
 use App\Models\Program;
+use App\Models\RequirementType;
 use App\Models\Review;
 use App\Models\StudentProfile;
 use App\Models\User;
@@ -21,6 +23,9 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // 0. The menu of things a scholarship can ask an applicant for.
+        $this->call(RequirementTypeSeeder::class);
+
         // 1. Roles
         $studentRole = Role::firstOrCreate(['name' => 'student']);
         $reviewerRole = Role::firstOrCreate(['name' => 'reviewer']);
@@ -80,6 +85,32 @@ class DatabaseSeeder extends Seeder
             ]));
         }
 
+        // 4b. Requirements per programme. Deliberately uneven: only some
+        // scholarships want a recommendation letter, which is the whole point
+        // of keeping requirements in their own table.
+        $requirementTypes = RequirementType::all()->keyBy('slug');
+
+        // slug => is it compulsory
+        $requirementSets = [
+            ['cv' => true, 'transcript' => true],
+            ['cv' => true, 'transcript' => true, 'essay' => true],
+            ['cv' => true, 'transcript' => true, 'recommendation-letter' => true, 'essay' => true],
+            ['transcript' => true, 'income-statement' => true, 'essay' => true, 'cv' => false],
+            ['cv' => true, 'transcript' => true, 'achievement-certificate' => false],
+        ];
+
+        foreach ($programs as $index => $program) {
+            $set = $requirementSets[$index % count($requirementSets)];
+
+            foreach ($set as $slug => $isRequired) {
+                $program->requirements()->create([
+                    'requirement_type_id' => $requirementTypes[$slug]->id,
+                    'is_required' => $isRequired,
+                    'instructions' => null,
+                ]);
+            }
+        }
+
         // 5. Applications (~20) across students/programs, unique (student, program, semester).
         $pairs = collect();
         foreach ($students as $student) {
@@ -109,9 +140,59 @@ class DatabaseSeeder extends Seeder
             ]));
         }
 
+        // 5b. What each applicant supplied. Text answers get real prose; file
+        // requirements get a row with the metadata but no stored file, since
+        // seeding cannot invent a PDF — the reviewer's checklist shows them as
+        // supplied, and the download link is only rendered when a path exists.
+        // $applications is a plain Collection, so the requirements are gathered
+        // once here and keyed by programme rather than eager-loaded.
+        $requirementsByProgram = Program::with('requirements.requirementType')
+            ->get()
+            ->keyBy('id')
+            ->map(fn (Program $program) => $program->requirements);
+
+        foreach ($applications as $application) {
+            foreach ($requirementsByProgram[$application->program_id] as $requirement) {
+                // Leave roughly one optional item in four unanswered, so the
+                // reviewer's checklist has something to actually show.
+                if (! $requirement->is_required && fake()->boolean(25)) {
+                    continue;
+                }
+
+                $type = $requirement->requirementType;
+
+                $application->documents()->create([
+                    'requirement_type_id' => $type->id,
+                    'body' => $type->kind === RequirementKind::Text
+                        ? fake()->paragraphs(2, true)
+                        : null,
+                    'original_name' => $type->kind === RequirementKind::File
+                        ? $type->slug.'-'.$application->student_id.'.pdf'
+                        : null,
+                    'mime_type' => $type->kind === RequirementKind::File ? 'application/pdf' : null,
+                    'size_bytes' => $type->kind === RequirementKind::File
+                        ? fake()->numberBetween(80_000, 2_000_000)
+                        : null,
+                ]);
+            }
+        }
+
+        // 5c. One cancelled application, so the withdrawn state is visible in
+        // the demo without having to click through the flow.
+        $cancelled = $applications->firstWhere('status', ApplicationStatus::Submitted);
+
+        if ($cancelled) {
+            $cancelled->update([
+                'status' => ApplicationStatus::Cancelled,
+                'cancelled_at' => now()->subDays(2),
+            ]);
+        }
+
         // 6. Reviews for under_review / approved / rejected applications.
         foreach ($applications as $application) {
-            if ($application->status === ApplicationStatus::Submitted) {
+            // Nothing to review on an application still waiting to be claimed,
+            // or on one the student has withdrawn.
+            if (in_array($application->status, [ApplicationStatus::Submitted, ApplicationStatus::Cancelled], true)) {
                 continue;
             }
 
@@ -128,14 +209,33 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 7. Disbursements for approved applications.
-        foreach ($applications->where('status', ApplicationStatus::Approved) as $application) {
-            $count = fake()->numberBetween(1, 2);
+        // 7. Awards and disbursements for approved applications. Each award is
+        // paid in instalments and left part-paid, and the running total below
+        // keeps the awards within the programme's budget.
+        $budgetLeft = $programs->mapWithKeys(fn (Program $program) => [$program->id => (float) $program->budget]);
 
-            for ($seq = 1; $seq <= $count; $seq++) {
+        foreach ($applications->where('status', ApplicationStatus::Approved) as $application) {
+            $award = round(min(fake()->randomFloat(2, 4000, 12000), $budgetLeft[$application->program_id]), 2);
+
+            if ($award <= 0) {
+                continue;
+            }
+
+            $budgetLeft[$application->program_id] -= $award;
+            // Decimal columns are given strings: brick/math, behind the
+            // `decimal:2` cast, deprecates being handed floats.
+            $application->update(['awarded_amount' => (string) $award]);
+
+            // An instalment is a third of the award, so one or two of them
+            // always leave a balance outstanding — which is exactly what the
+            // "still to disburse" figures exist to show.
+            $instalments = fake()->numberBetween(1, 2);
+            $amount = round($award / 3, 2);
+
+            for ($seq = 1; $seq <= $instalments; $seq++) {
                 $application->disbursements()->create([
                     'seq_no' => $seq,
-                    'amount' => fake()->randomFloat(2, 500, 5000),
+                    'amount' => (string) $amount,
                     'disbursement_date' => now()->subDays(fake()->numberBetween(1, 30)),
                     'semester' => self::SEMESTER,
                 ]);

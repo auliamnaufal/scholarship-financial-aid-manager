@@ -6,11 +6,13 @@ use App\Enums\ProgramType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -43,6 +45,36 @@ class Program extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(Application::class);
+    }
+
+    public function requirements(): HasMany
+    {
+        return $this->hasMany(ProgramRequirement::class);
+    }
+
+    public function requirementTypes(): BelongsToMany
+    {
+        return $this->belongsToMany(RequirementType::class, 'program_requirements')
+            ->withPivot(['is_required', 'instructions'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Money already paid out across every application to this programme.
+     * Worked out on read rather than stored, so it cannot drift from the
+     * disbursement rows it summarises.
+     */
+    public function disbursedTotal(): float
+    {
+        return (float) Disbursement::query()
+            ->whereIn('application_id', $this->applications()->select('id'))
+            ->sum('amount');
+    }
+
+    /** Budget not yet handed out. Never reported below zero. */
+    public function remainingBudget(): float
+    {
+        return max(0, (float) $this->budget - $this->disbursedTotal());
     }
 
     /**
