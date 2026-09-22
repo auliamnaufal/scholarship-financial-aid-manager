@@ -16,6 +16,11 @@
     ::selection {
         @apply bg-indigo-600 text-white;
     }
+
+    /* Keeps Alpine-hidden blocks from flashing before Alpine boots. */
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 @layer components {

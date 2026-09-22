@@ -72,7 +72,7 @@
 
             @role('coordinator')
                 <p class="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Moderator') }}</p>
-                <x-nav-link :href="route('coordinator.dashboard')" :active="request()->routeIs('coordinator.dashboard', 'coordinator.programs.*')">
+                <x-nav-link :href="route('coordinator.programs.index')" :active="request()->routeIs('coordinator.dashboard', 'coordinator.programs.*')">
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                         <line x1="4" y1="6" x2="20" y2="6" /><circle cx="9" cy="6" r="1.75" fill="currentColor" stroke="none" />
                         <line x1="4" y1="12" x2="20" y2="12" /><circle cx="15" cy="12" r="1.75" fill="currentColor" stroke="none" />
@@ -86,6 +86,13 @@
                         <path stroke-linecap="round" d="M8.5 8h7M8.5 12h7M8.5 16h4" />
                     </svg>
                     {{ __('Applications') }}
+                </x-nav-link>
+                <x-nav-link :href="route('coordinator.students.index')" :active="request()->routeIs('coordinator.students.*')">
+                    <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4 2.5 8.5 12 13l9.5-4.5L12 4Z" />
+                        <path stroke-linecap="round" d="M6.5 10.8v4.4c0 1.5 2.5 2.8 5.5 2.8s5.5-1.3 5.5-2.8v-4.4M21 9v5" />
+                    </svg>
+                    {{ __('Students') }}
                 </x-nav-link>
                 <x-nav-link :href="route('coordinator.users.index')" :active="request()->routeIs('coordinator.users.*')">
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">

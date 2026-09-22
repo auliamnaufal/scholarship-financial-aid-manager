@@ -4,6 +4,7 @@ use App\Http\Controllers\Coordinator\ApplicationController as CoordinatorApplica
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Http\Controllers\Coordinator\DisbursementController;
 use App\Http\Controllers\Coordinator\ProgramController as CoordinatorProgramController;
+use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentController;
 use App\Http\Controllers\Coordinator\UserController as CoordinatorUserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
@@ -53,10 +54,22 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
     ->name('coordinator.')
     ->group(function () {
         Route::get('/dashboard', [CoordinatorDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/programs', [CoordinatorProgramController::class, 'index'])->name('programs.index');
         Route::get('/programs/create', [CoordinatorProgramController::class, 'create'])->name('programs.create');
         Route::post('/programs', [CoordinatorProgramController::class, 'store'])->name('programs.store');
         Route::get('/programs/{program}/edit', [CoordinatorProgramController::class, 'edit'])->name('programs.edit');
         Route::put('/programs/{program}', [CoordinatorProgramController::class, 'update'])->name('programs.update');
+        Route::delete('/programs/{program}', [CoordinatorProgramController::class, 'destroy'])->name('programs.destroy');
+        Route::post('/programs/{program}/restore', [CoordinatorProgramController::class, 'restore'])->name('programs.restore');
+
+        Route::get('/students', [CoordinatorStudentController::class, 'index'])->name('students.index');
+        Route::get('/students/create', [CoordinatorStudentController::class, 'create'])->name('students.create');
+        Route::post('/students', [CoordinatorStudentController::class, 'store'])->name('students.store');
+        Route::get('/students/{student}/edit', [CoordinatorStudentController::class, 'edit'])->name('students.edit');
+        Route::put('/students/{student}', [CoordinatorStudentController::class, 'update'])->name('students.update');
+        Route::delete('/students/{student}', [CoordinatorStudentController::class, 'destroy'])->name('students.destroy');
+        Route::post('/students/{student}/restore', [CoordinatorStudentController::class, 'restore'])->name('students.restore');
         Route::get('/applications', [CoordinatorApplicationController::class, 'index'])->name('applications.index');
         Route::get('/applications/{application}', [CoordinatorApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
