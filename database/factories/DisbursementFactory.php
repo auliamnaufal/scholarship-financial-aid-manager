@@ -15,7 +15,7 @@ class DisbursementFactory extends Factory
         return [
             'application_id' => Application::factory(),
             'seq_no' => 1,
-            'amount' => fake()->randomFloat(2, 500, 5000),
+            'amount' => fake()->numberBetween(5, 50) * 100000,
             'disbursement_date' => fake()->dateTimeBetween('-1 month', 'now'),
             'semester' => '2026-1',
         ];

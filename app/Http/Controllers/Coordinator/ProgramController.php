@@ -48,7 +48,7 @@ class ProgramController extends Controller
 
         return redirect()
             ->route('coordinator.programs.index')
-            ->with('status', "Program \"{$program->name}\" created.");
+            ->with('status', __('Program ":name" created.', ['name' => $program->name]));
     }
 
     public function edit(Program $program): View
@@ -73,7 +73,7 @@ class ProgramController extends Controller
 
         return redirect()
             ->route('coordinator.programs.index')
-            ->with('status', "Program \"{$program->name}\" updated.");
+            ->with('status', __('Program ":name" updated.', ['name' => $program->name]));
     }
 
     /**
@@ -90,7 +90,7 @@ class ProgramController extends Controller
 
         return redirect()
             ->route('coordinator.programs.index')
-            ->with('status', "Program \"{$program->name}\" archived.");
+            ->with('status', __('Program ":name" archived.', ['name' => $program->name]));
     }
 
     public function restore(int $program): RedirectResponse
@@ -103,7 +103,7 @@ class ProgramController extends Controller
 
         return redirect()
             ->route('coordinator.programs.index')
-            ->with('status', "Program \"{$program->name}\" restored.");
+            ->with('status', __('Program ":name" restored.', ['name' => $program->name]));
     }
 
     /**

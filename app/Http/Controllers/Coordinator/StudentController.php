@@ -53,7 +53,7 @@ class StudentController extends Controller
 
         return redirect()
             ->route('coordinator.students.index')
-            ->with('status', "Student \"{$student->name}\" created.");
+            ->with('status', __('Student ":name" created.', ['name' => $student->name]));
     }
 
     public function edit(User $student): View
@@ -84,7 +84,7 @@ class StudentController extends Controller
 
         return redirect()
             ->route('coordinator.students.index')
-            ->with('status', "Student \"{$student->name}\" updated.");
+            ->with('status', __('Student ":name" updated.', ['name' => $student->name]));
     }
 
     /**
@@ -95,14 +95,14 @@ class StudentController extends Controller
     public function destroy(User $student): RedirectResponse
     {
         if ($student->is(Auth::user())) {
-            return back()->withErrors(['student' => 'You cannot archive your own account here.']);
+            return back()->withErrors(['student' => __('You cannot archive your own account here.')]);
         }
 
         $student->delete();
 
         return redirect()
             ->route('coordinator.students.index')
-            ->with('status', "Student \"{$student->name}\" archived.");
+            ->with('status', __('Student ":name" archived.', ['name' => $student->name]));
     }
 
     public function restore(int $student): RedirectResponse
@@ -112,6 +112,6 @@ class StudentController extends Controller
 
         return redirect()
             ->route('coordinator.students.index')
-            ->with('status', "Student \"{$student->name}\" restored.");
+            ->with('status', __('Student ":name" restored.', ['name' => $student->name]));
     }
 }

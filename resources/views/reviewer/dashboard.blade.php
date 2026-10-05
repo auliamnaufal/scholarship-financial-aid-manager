@@ -34,7 +34,7 @@
                                     <td class="px-4 py-2">
                                         <form method="POST" action="{{ route('reviewer.applications.claim', $application) }}">
                                             @csrf
-                                            <button type="submit" class="px-3 py-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl shadow-sm transition hover:from-indigo-500 hover:to-violet-500 text-xs font-medium">
+                                            <button type="submit" class="px-3 py-1 bg-indigo-700 text-white rounded-xl shadow-sm transition hover:bg-indigo-600 text-xs font-medium">
                                                 {{ __('Claim') }}
                                             </button>
                                         </form>

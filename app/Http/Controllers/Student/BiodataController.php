@@ -31,6 +31,6 @@ class BiodataController extends Controller
 
         return redirect()
             ->route('student.biodata.edit')
-            ->with('status', 'Biodata saved.');
+            ->with('status', __('Biodata saved.'));
     }
 }

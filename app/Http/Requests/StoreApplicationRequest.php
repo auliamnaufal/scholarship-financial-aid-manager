@@ -70,7 +70,7 @@ class StoreApplicationRequest extends FormRequest
             }
 
             if (! $program->isOpen()) {
-                $validator->errors()->add('program_id', 'The application deadline for this program has already passed.');
+                $validator->errors()->add('program_id', __('The application deadline for this program has already passed.'));
             }
 
             $duplicate = Application::query()
@@ -80,7 +80,7 @@ class StoreApplicationRequest extends FormRequest
                 ->exists();
 
             if ($duplicate) {
-                $validator->errors()->add('semester', 'You have already applied to this program for this semester.');
+                $validator->errors()->add('semester', __('You have already applied to this program for this semester.'));
             }
 
             $this->checkEligibility($validator, $program);
@@ -96,27 +96,27 @@ class StoreApplicationRequest extends FormRequest
         $profile = $this->user()->studentProfile;
 
         if (! $profile) {
-            $validator->errors()->add('program_id', 'Fill in your biodata before applying.');
+            $validator->errors()->add('program_id', __('Fill in your biodata before applying.'));
 
             return;
         }
 
         if ($program->min_gpa !== null && (float) $profile->gpa < (float) $program->min_gpa) {
             $validator->errors()->add('program_id', sprintf(
-                'This scholarship needs a GPA of at least %s; yours is %s.',
-                number_format((float) $program->min_gpa, 2),
-                number_format((float) $profile->gpa, 2),
+                __('This scholarship needs a GPA of at least %s; yours is %s.'),
+                number_format((float) $program->min_gpa, 2, ',', '.'),
+                number_format((float) $profile->gpa, 2, ',', '.'),
             ));
         }
 
         if ($program->max_family_income !== null) {
             if ($profile->family_income === null) {
-                $validator->errors()->add('program_id', 'This scholarship is means-tested. Record your family income in your biodata first.');
+                $validator->errors()->add('program_id', __('This scholarship is means-tested. Record your family income in your biodata first.'));
             } elseif ((float) $profile->family_income > (float) $program->max_family_income) {
                 $validator->errors()->add('program_id', sprintf(
-                    'This scholarship is for family incomes up to %s; yours is recorded as %s.',
-                    number_format((float) $program->max_family_income),
-                    number_format((float) $profile->family_income),
+                    __('This scholarship is for family incomes up to %s; yours is recorded as %s.'),
+                    \App\Support\Money::rupiah((float) $program->max_family_income),
+                    \App\Support\Money::rupiah((float) $profile->family_income),
                 ));
             }
         }

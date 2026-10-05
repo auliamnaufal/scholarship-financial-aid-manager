@@ -14,7 +14,7 @@
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-medium">{{ __('Programs You Manage') }}</h3>
-                    <a href="{{ route('coordinator.programs.create') }}" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl shadow-sm transition hover:from-indigo-500 hover:to-violet-500 text-sm font-medium">
+                    <a href="{{ route('coordinator.programs.create') }}" class="px-4 py-2 bg-indigo-700 text-white rounded-xl shadow-sm transition hover:bg-indigo-600 text-sm font-medium">
                         {{ __('New Program') }}
                     </a>
                 </div>

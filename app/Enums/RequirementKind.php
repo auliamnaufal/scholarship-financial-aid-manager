@@ -14,8 +14,8 @@ enum RequirementKind: string
     public function label(): string
     {
         return match ($this) {
-            self::File => 'File upload',
-            self::Text => 'Written answer',
+            self::File => __('File upload'),
+            self::Text => __('Written answer'),
         };
     }
 }

@@ -18,7 +18,7 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('reviewer.applications.show', $application)
-            ->with('status', 'Application claimed. You can now submit your review.');
+            ->with('status', __('Application claimed. You can now submit your review.'));
     }
 
     public function show(Application $application): View

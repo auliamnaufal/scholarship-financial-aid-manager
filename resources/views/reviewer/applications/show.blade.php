@@ -113,7 +113,7 @@
                     <div class="space-y-3">
                         @foreach ($application->reviews as $review)
                             <div class="rounded-lg border border-slate-200 p-3 text-sm">
-                                <p class="font-medium">{{ $review->reviewer->name }} — {{ __('Score') }}: {{ $review->score }}</p>
+                                <p class="font-medium">{{ $review->reviewer->name }} ({{ __('Score') }}: {{ $review->score }})</p>
                                 @if ($review->comments)
                                     <p class="text-slate-600">{{ $review->comments }}</p>
                                 @endif

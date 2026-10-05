@@ -52,10 +52,10 @@
                                             <span class="block text-xs text-slate-500">{{ $student->email }}{{ $profile?->nim ? ' · '.$profile->nim : '' }}</span>
                                         </td>
                                         <td class="px-3 py-3">
-                                            {{ $profile?->study_program ?? '—' }}
+                                            {{ $profile?->study_program ?? '-' }}
                                             <span class="block text-xs text-slate-500">{{ $profile?->faculty }}</span>
                                         </td>
-                                        <td class="px-3 py-3">{{ $profile?->gpa ?? '—' }}</td>
+                                        <td class="px-3 py-3">{{ $profile?->gpa ?? '-' }}</td>
                                         <td class="px-3 py-3">{{ $student->applications_count }}</td>
                                         <td class="px-3 py-3">
                                             @if (! $profile)

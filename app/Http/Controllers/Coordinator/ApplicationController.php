@@ -57,7 +57,7 @@ class ApplicationController extends Controller
                 'max:'.$application->program->remainingBudget(),
             ],
         ], [
-            'awarded_amount.max' => 'The program has only :max left in its budget.',
+            'awarded_amount.max' => __('The program has only :max left in its budget.'),
         ]);
 
         $application->update([
@@ -67,7 +67,7 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('coordinator.applications.show', $application)
-            ->with('status', 'Application approved.');
+            ->with('status', __('Application approved.'));
     }
 
     public function reject(Application $application): RedirectResponse
@@ -78,6 +78,6 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('coordinator.applications.show', $application)
-            ->with('status', 'Application rejected.');
+            ->with('status', __('Application rejected.'));
     }
 }

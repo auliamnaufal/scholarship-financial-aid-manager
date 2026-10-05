@@ -29,18 +29,18 @@
                                 <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current"></span>{{ $application->status->label() }}
                             </span>
                             @if ($application->cancelled_at)
-                                <span class="block mt-1 text-xs text-slate-500">{{ __('Withdrawn on') }} {{ $application->cancelled_at->format('d M Y') }}</span>
+                                <span class="block mt-1 text-xs text-slate-500">{{ __('Withdrawn on') }} {{ $application->cancelled_at->translatedFormat('d M Y') }}</span>
                             @endif
                         </dd>
                     </div>
                     @if ($application->awarded_amount !== null)
                         <div>
                             <dt class="text-slate-500">{{ __('Awarded') }}</dt>
-                            <dd>{{ number_format((float) $application->awarded_amount, 2) }}</dd>
+                            <dd>{{ \App\Support\Money::rupiah((float) $application->awarded_amount) }}</dd>
                         </div>
                         <div>
                             <dt class="text-slate-500">{{ __('Still to be paid') }}</dt>
-                            <dd class="font-medium text-slate-900">{{ number_format($application->remainingAward(), 2) }}</dd>
+                            <dd class="font-medium text-slate-900">{{ \App\Support\Money::rupiah($application->remainingAward()) }}</dd>
                         </div>
                     @endif
                 </dl>
@@ -105,7 +105,7 @@
                             @foreach ($application->disbursements->sortBy('seq_no') as $disbursement)
                                 <tr>
                                     <td class="px-4 py-2">{{ $disbursement->seq_no }}</td>
-                                    <td class="px-4 py-2">{{ number_format($disbursement->amount, 2) }}</td>
+                                    <td class="px-4 py-2">{{ \App\Support\Money::rupiah($disbursement->amount) }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->disbursement_date->format('Y-m-d') }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->semester }}</td>
                                 </tr>

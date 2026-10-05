@@ -46,10 +46,10 @@
                                             @endif
                                             <span class="block text-xs text-slate-500">{{ $program->type->label() }} · {{ $program->funding_source }}</span>
                                         </td>
-                                        <td class="px-3 py-3 whitespace-nowrap">{{ $program->application_deadline->format('d M Y') }}</td>
+                                        <td class="px-3 py-3 whitespace-nowrap">{{ $program->application_deadline->translatedFormat('d M Y') }}</td>
                                         <td class="px-3 py-3">{{ $program->applications_count }}</td>
-                                        <td class="px-3 py-3 whitespace-nowrap">{{ number_format($program->budget) }}</td>
-                                        <td class="px-3 py-3 whitespace-nowrap font-medium text-slate-900">{{ number_format($program->remainingBudget()) }}</td>
+                                        <td class="px-3 py-3 whitespace-nowrap">{{ \App\Support\Money::rupiah($program->budget) }}</td>
+                                        <td class="px-3 py-3 whitespace-nowrap font-medium text-slate-900">{{ \App\Support\Money::rupiah($program->remainingBudget()) }}</td>
                                         <td class="px-3 py-3">{{ $program->requirements()->count() }}</td>
                                         <td class="px-3 py-3">
                                             <div class="flex justify-end items-center gap-3">

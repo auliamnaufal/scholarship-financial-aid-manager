@@ -22,7 +22,7 @@ class ReviewController extends Controller
 
         return redirect()
             ->route('reviewer.dashboard')
-            ->with('status', 'Review submitted.');
+            ->with('status', __('Review submitted.'));
     }
 
     public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
@@ -31,6 +31,6 @@ class ReviewController extends Controller
 
         return redirect()
             ->route('reviewer.applications.show', $review->application)
-            ->with('status', 'Review updated.');
+            ->with('status', __('Review updated.'));
     }
 }

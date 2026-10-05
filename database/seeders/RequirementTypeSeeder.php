@@ -17,39 +17,39 @@ class RequirementTypeSeeder extends Seeder
         $types = [
             [
                 'slug' => 'cv',
-                'name' => 'Curriculum vitae',
+                'name' => 'Curriculum vitae (CV)',
                 'kind' => RequirementKind::File,
-                'description' => 'A short CV listing education, activities and any work experience.',
+                'description' => 'CV singkat yang memuat riwayat pendidikan, kegiatan, dan pengalaman kerja (jika ada).',
             ],
             [
                 'slug' => 'transcript',
-                'name' => 'Academic transcript (KHS)',
+                'name' => 'Transkrip nilai (KHS)',
                 'kind' => RequirementKind::File,
-                'description' => 'The most recent semester transcript, showing the current GPA.',
+                'description' => 'Transkrip semester terakhir yang menunjukkan IPK saat ini.',
             ],
             [
                 'slug' => 'recommendation-letter',
-                'name' => 'Recommendation letter',
+                'name' => 'Surat rekomendasi',
                 'kind' => RequirementKind::File,
-                'description' => 'A signed letter from an academic supervisor or lecturer.',
+                'description' => 'Surat bertanda tangan dari dosen pembimbing atau dosen pengajar.',
             ],
             [
                 'slug' => 'essay',
-                'name' => 'Essay / personal statement',
+                'name' => 'Esai / pernyataan pribadi',
                 'kind' => RequirementKind::Text,
-                'description' => 'Why you are applying, and what you intend to do with the award.',
+                'description' => 'Alasan Anda mendaftar dan rencana Anda menggunakan beasiswa ini.',
             ],
             [
                 'slug' => 'achievement-certificate',
-                'name' => 'Achievement certificate',
+                'name' => 'Sertifikat prestasi',
                 'kind' => RequirementKind::File,
-                'description' => 'Evidence of a competition, publication or other achievement.',
+                'description' => 'Bukti lomba, publikasi, atau prestasi lainnya.',
             ],
             [
                 'slug' => 'income-statement',
-                'name' => 'Proof of family income',
+                'name' => 'Bukti penghasilan keluarga',
                 'kind' => RequirementKind::File,
-                'description' => 'A payslip or a statement of income from the local authority.',
+                'description' => 'Slip gaji atau surat keterangan penghasilan dari kelurahan/desa.',
             ],
         ];
 

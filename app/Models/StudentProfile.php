@@ -54,15 +54,15 @@ class StudentProfile extends Model
     public function missingFields(): array
     {
         $labels = [
-            'nim' => 'Student number',
-            'faculty' => 'Faculty',
-            'study_program' => 'Study programme',
-            'phone' => 'Phone number',
-            'address' => 'Address',
-            'family_income' => 'Family income',
-            'bank_name' => 'Bank name',
-            'bank_account_number' => 'Bank account number',
-            'bank_account_holder' => 'Account holder',
+            'nim' => __('Student number'),
+            'faculty' => __('Faculty'),
+            'study_program' => __('Study programme'),
+            'phone' => __('Phone number'),
+            'address' => __('Address'),
+            'family_income' => __('Family income'),
+            'bank_name' => __('Bank name'),
+            'bank_account_number' => __('Bank account number'),
+            'bank_account_holder' => __('Account holder'),
         ];
 
         return array_values(array_filter(

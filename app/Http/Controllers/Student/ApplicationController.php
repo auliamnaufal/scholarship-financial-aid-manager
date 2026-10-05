@@ -50,7 +50,7 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('student.applications.show', $application)
-            ->with('status', 'Application submitted successfully.');
+            ->with('status', __('Application submitted successfully.'));
     }
 
     public function show(Application $application): View
@@ -83,7 +83,7 @@ class ApplicationController extends Controller
 
         return redirect()
             ->route('student.dashboard')
-            ->with('status', 'Application withdrawn.');
+            ->with('status', __('Application withdrawn.'));
     }
 
     /**

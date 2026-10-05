@@ -56,7 +56,7 @@
                                 <x-text-input id="awarded_amount" name="awarded_amount" type="number" step="0.01" min="0.01"
                                     max="{{ $budgetLeft }}" class="mt-1 block w-48" :value="old('awarded_amount')" required />
                                 <p class="mt-1 text-xs text-slate-500">
-                                    {{ __('Budget left in this program:') }} {{ number_format($budgetLeft, 2) }}
+                                    {{ __('Budget left in this program:') }} {{ \App\Support\Money::rupiah($budgetLeft) }}
                                 </p>
                             </div>
                             <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm transition hover:bg-emerald-500 text-sm font-medium">{{ __('Approve') }}</button>
@@ -82,7 +82,7 @@
                     <div class="space-y-3">
                         @foreach ($application->reviews as $review)
                             <div class="rounded-lg border border-slate-200 p-3 text-sm">
-                                <p class="font-medium">{{ $review->reviewer->name }} — {{ __('Score') }}: {{ $review->score }}</p>
+                                <p class="font-medium">{{ $review->reviewer->name }} ({{ __('Score') }}: {{ $review->score }})</p>
                                 @if ($review->comments)
                                     <p class="text-slate-600">{{ $review->comments }}</p>
                                 @endif
@@ -103,15 +103,15 @@
                     <dl class="mb-4 grid grid-cols-3 gap-4 rounded-xl bg-slate-50 p-4 text-sm">
                         <div>
                             <dt class="text-slate-500">{{ __('Awarded') }}</dt>
-                            <dd class="font-medium text-slate-900">{{ number_format((float) $application->awarded_amount, 2) }}</dd>
+                            <dd class="font-medium text-slate-900">{{ \App\Support\Money::rupiah((float) $application->awarded_amount) }}</dd>
                         </div>
                         <div>
                             <dt class="text-slate-500">{{ __('Paid so far') }}</dt>
-                            <dd class="font-medium text-slate-900">{{ number_format($application->disbursedTotal(), 2) }}</dd>
+                            <dd class="font-medium text-slate-900">{{ \App\Support\Money::rupiah($application->disbursedTotal()) }}</dd>
                         </div>
                         <div>
                             <dt class="text-slate-500">{{ __('Still to pay') }}</dt>
-                            <dd class="font-medium text-indigo-700">{{ number_format($application->remainingAward(), 2) }}</dd>
+                            <dd class="font-medium text-indigo-700">{{ \App\Support\Money::rupiah($application->remainingAward()) }}</dd>
                         </div>
                     </dl>
 
@@ -136,7 +136,7 @@
                             @foreach ($application->disbursements->sortBy('seq_no') as $disbursement)
                                 <tr>
                                     <td class="px-4 py-2">{{ $disbursement->seq_no }}</td>
-                                    <td class="px-4 py-2">{{ number_format($disbursement->amount, 2) }}</td>
+                                    <td class="px-4 py-2">{{ \App\Support\Money::rupiah($disbursement->amount) }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->disbursement_date->format('Y-m-d') }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->semester }}</td>
                                 </tr>

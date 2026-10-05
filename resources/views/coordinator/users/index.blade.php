@@ -14,7 +14,7 @@
             <x-card>
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-medium">{{ __('Reviewers & Moderators') }}</h3>
-                    <a href="{{ route('coordinator.users.create') }}" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl shadow-sm transition hover:from-indigo-500 hover:to-violet-500 text-sm font-medium">
+                    <a href="{{ route('coordinator.users.create') }}" class="px-4 py-2 bg-indigo-700 text-white rounded-xl shadow-sm transition hover:bg-indigo-600 text-sm font-medium">
                         {{ __('New account') }}
                     </a>
                 </div>

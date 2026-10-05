@@ -114,7 +114,7 @@
                                 @checked($isRequired)
                                 class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                             >
-                            {{ __('Compulsory — the application cannot be submitted without it') }}
+                            {{ __('Compulsory. The application cannot be submitted without it.') }}
                         </label>
 
                         <div>

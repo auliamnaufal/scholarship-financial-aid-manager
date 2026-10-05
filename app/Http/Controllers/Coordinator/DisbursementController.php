@@ -15,6 +15,6 @@ class DisbursementController extends Controller
 
         return redirect()
             ->route('coordinator.applications.show', $application)
-            ->with('status', 'Disbursement recorded.');
+            ->with('status', __('Disbursement recorded.'));
     }
 }

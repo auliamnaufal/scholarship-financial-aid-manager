@@ -22,6 +22,17 @@ class DatabaseSeeder extends Seeder
      */
     private const SEMESTER = '2026-1';
 
+    /**
+     * Isi esai contoh untuk persyaratan bertipe teks.
+     */
+    private const ESSAY_PARAGRAPHS = [
+        'Saya mendaftar beasiswa ini karena ingin terus melanjutkan pendidikan tanpa membebani orang tua. Penghasilan keluarga kami pas-pasan sehingga bantuan ini akan sangat berarti bagi kelancaran studi saya.',
+        'Selama kuliah saya berusaha menjaga nilai akademik dan aktif dalam kegiatan organisasi kampus. Pengalaman tersebut mengajarkan saya tentang kerja sama, tanggung jawab, dan pengelolaan waktu.',
+        'Jika terpilih, dana beasiswa akan saya gunakan untuk membayar uang kuliah, membeli buku dan kebutuhan penelitian, serta menunjang biaya hidup selama masa studi.',
+        'Cita-cita saya adalah menjadi tenaga profesional yang bermanfaat bagi masyarakat di daerah asal saya. Saya berkomitmen menyelesaikan kuliah tepat waktu dan membagikan ilmu yang saya peroleh.',
+        'Saya percaya pendidikan adalah kunci untuk memperbaiki masa depan keluarga. Karena itu saya akan memanfaatkan kesempatan ini sebaik-baiknya dan menjaga amanah yang diberikan.',
+    ];
+
     public function run(): void
     {
         // 0. The menu of things a scholarship can ask an applicant for.
@@ -78,11 +89,11 @@ class DatabaseSeeder extends Seeder
         foreach ($allCoordinators as $index => $coordinator) {
             $type = $index % 2 === 0 ? 'need_based' : 'merit_based';
 
-            $programs->push(Program::factory()->create([
+            $programs->push(Program::factory()->forType($type)->create([
                 'coordinator_id' => $coordinator->id,
                 'type' => $type,
-                'max_family_income' => $type === 'need_based' ? fake()->randomFloat(2, 20000, 80000) : null,
-                'min_gpa' => $type === 'merit_based' ? fake()->randomFloat(2, 3, 4) : null,
+                'max_family_income' => $type === 'need_based' ? fake()->randomElement([3000000, 3500000, 4000000, 4500000, 5000000]) : null,
+                'min_gpa' => $type === 'merit_based' ? fake()->randomElement([3.00, 3.25, 3.50, 3.75]) : null,
             ]));
         }
 
@@ -169,7 +180,7 @@ class DatabaseSeeder extends Seeder
                 if ($type->kind === RequirementKind::Text) {
                     $application->documents()->create([
                         'requirement_type_id' => $type->id,
-                        'body' => fake()->paragraphs(2, true),
+                        'body' => implode("\n\n", fake()->randomElements(self::ESSAY_PARAGRAPHS, 2)),
                     ]);
 
                     continue;
@@ -229,7 +240,7 @@ class DatabaseSeeder extends Seeder
         $budgetLeft = $programs->mapWithKeys(fn (Program $program) => [$program->id => (float) $program->budget]);
 
         foreach ($applications->where('status', ApplicationStatus::Approved) as $application) {
-            $award = round(min(fake()->randomFloat(2, 4000, 12000), $budgetLeft[$application->program_id]), 2);
+            $award = (float) min(fake()->numberBetween(8, 24) * 500000, $budgetLeft[$application->program_id]);
 
             if ($award <= 0) {
                 continue;
@@ -244,7 +255,7 @@ class DatabaseSeeder extends Seeder
             // always leave a balance outstanding — which is exactly what the
             // "still to disburse" figures exist to show.
             $instalments = fake()->numberBetween(1, 2);
-            $amount = round($award / 3, 2);
+            $amount = floor($award / 3 / 100000) * 100000;
 
             for ($seq = 1; $seq <= $instalments; $seq++) {
                 $application->disbursements()->create([
@@ -270,7 +281,7 @@ class DatabaseSeeder extends Seeder
      */
     private function placeholderPdf(string $title, string $student): string
     {
-        $line = str_replace(['(', ')', '\\'], '', "{$title} — {$student} (sample document)");
+        $line = str_replace(['(', ')', '\\'], '', "{$title} untuk {$student} (dokumen contoh)");
 
         $objects = [
             "<< /Type /Catalog /Pages 2 0 R >>",

@@ -13,11 +13,11 @@ enum ApplicationStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Submitted => 'Submitted',
-            self::UnderReview => 'Under review',
-            self::Approved => 'Approved',
-            self::Rejected => 'Rejected',
-            self::Cancelled => 'Cancelled',
+            self::Submitted => __('Submitted'),
+            self::UnderReview => __('Under review'),
+            self::Approved => __('Approved'),
+            self::Rejected => __('Rejected'),
+            self::Cancelled => __('Cancelled'),
         };
     }
 

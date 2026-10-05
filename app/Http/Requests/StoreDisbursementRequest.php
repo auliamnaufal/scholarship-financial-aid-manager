@@ -65,8 +65,8 @@ class StoreDisbursementRequest extends FormRequest
 
         if ($owedToStudent !== null && $amount > $owedToStudent) {
             $validator->errors()->add('amount', sprintf(
-                'Only %s is still owed on this application.',
-                number_format($owedToStudent, 2),
+                __('Only %s is still owed on this application.'),
+                \App\Support\Money::rupiah($owedToStudent),
             ));
         }
 
@@ -74,8 +74,8 @@ class StoreDisbursementRequest extends FormRequest
 
         if ($amount > $leftInBudget) {
             $validator->errors()->add('amount', sprintf(
-                'The program has only %s left in its budget.',
-                number_format($leftInBudget, 2),
+                __('The program has only %s left in its budget.'),
+                \App\Support\Money::rupiah($leftInBudget),
             ));
         }
     }

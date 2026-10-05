@@ -12,7 +12,7 @@
                     {{ __('Your account holds more than one role. Choose which dashboard to open:') }}
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <a href="{{ route('coordinator.dashboard') }}" class="flex-1 text-center px-4 py-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-xl shadow-sm transition hover:from-indigo-500 hover:to-violet-500 text-sm font-medium">
+                    <a href="{{ route('coordinator.dashboard') }}" class="flex-1 text-center px-4 py-3 bg-indigo-700 text-white rounded-xl shadow-sm transition hover:bg-indigo-600 text-sm font-medium">
                         {{ __('Moderator Dashboard') }}
                     </a>
                     <a href="{{ route('reviewer.dashboard') }}" class="flex-1 text-center px-4 py-3 bg-slate-800 text-white rounded-lg shadow-sm transition hover:bg-slate-700 text-sm font-medium">

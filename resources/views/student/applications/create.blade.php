@@ -29,12 +29,12 @@
 
             <x-card>
                 <div class="text-sm text-slate-500">
-                    <p>{{ __('Funded by') }} <span class="text-slate-900">{{ $program->funding_source }}</span> · {{ __('Deadline') }} {{ $program->application_deadline->format('d M Y') }}</p>
+                    <p>{{ __('Funded by') }} <span class="text-slate-900">{{ $program->funding_source }}</span> · {{ __('Deadline') }} {{ $program->application_deadline->translatedFormat('d M Y') }}</p>
                     @if ($program->min_gpa)
-                        <p class="mt-1">{{ __('Minimum GPA') }}: {{ number_format((float) $program->min_gpa, 2) }} — {{ __('yours is') }} {{ $profile?->gpa ?? '—' }}</p>
+                        <p class="mt-1">{{ __('Minimum GPA') }}: {{ number_format((float) $program->min_gpa, 2, ',', '.') }}. {{ __('Your GPA') }}: {{ $profile?->gpa ? number_format((float) $profile->gpa, 2, ',', '.') : '-' }}</p>
                     @endif
                     @if ($program->max_family_income)
-                        <p class="mt-1">{{ __('Maximum family income') }}: {{ number_format((float) $program->max_family_income) }} — {{ __('yours is recorded as') }} {{ $profile?->family_income ? number_format((float) $profile->family_income) : '—' }}</p>
+                        <p class="mt-1">{{ __('Maximum family income') }}: {{ \App\Support\Money::rupiah((float) $program->max_family_income) }}. {{ __('Your family income') }}: {{ $profile?->family_income ? \App\Support\Money::rupiah((float) $profile->family_income) : '-' }}</p>
                     @endif
                 </div>
 
@@ -47,7 +47,7 @@
                     <div>
                         <x-input-label for="semester" :value="__('Semester')" />
                         <x-text-input id="semester" name="semester" type="text" class="mt-1 block w-full"
-                            placeholder="e.g. 2026-1" :value="old('semester')" required autofocus />
+                            placeholder="{{ __('e.g. 2026-1') }}" :value="old('semester')" required autofocus />
                         <x-input-error :messages="$errors->get('semester')" class="mt-2" />
                     </div>
 

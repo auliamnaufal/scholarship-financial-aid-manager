@@ -37,6 +37,6 @@ class UserController extends Controller
 
         $user->syncRoles($request->validated('roles'));
 
-        return redirect()->route('coordinator.users.index')->with('status', 'Account created.');
+        return redirect()->route('coordinator.users.index')->with('status', __('Account created.'));
     }
 }

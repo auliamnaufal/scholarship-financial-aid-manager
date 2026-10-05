@@ -10,8 +10,8 @@ enum ProgramType: string
     public function label(): string
     {
         return match ($this) {
-            self::NeedBased => 'Need-based',
-            self::MeritBased => 'Merit-based',
+            self::NeedBased => __('Need-based'),
+            self::MeritBased => __('Merit-based'),
         };
     }
 }
