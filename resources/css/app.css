@@ -7,6 +7,10 @@
         @apply border-slate-200;
     }
 
+    h1, h2, h3, h4 {
+        letter-spacing: -0.01em;
+    }
+
     body {
         @apply bg-slate-50 text-slate-900;
         -webkit-font-smoothing: antialiased;
@@ -80,10 +84,153 @@
     }
 
     .text-gradient {
-        @apply bg-gradient-to-r from-indigo-200 via-white to-fuchsia-200 bg-clip-text text-transparent;
+        @apply bg-gradient-to-r from-indigo-200 via-white to-amber-200 bg-clip-text text-transparent;
     }
 
     .btn-gradient {
-        @apply bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500;
+        @apply bg-indigo-700 hover:bg-indigo-600;
     }
+}
+
+
+/* Scroll reveal: elements marked data-reveal rise into place as they enter the
+   viewport. The "js" class is set in the layout head, so without JavaScript
+   nothing is ever hidden. */
+.js [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--d, 0ms);
+}
+
+.js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Sidebar links slide in one after another. */
+.nav-stagger > * {
+    @apply animate-fade-up;
+}
+
+.nav-stagger > *:nth-child(1) {
+    animation-delay: 135ms;
+}
+
+.nav-stagger > *:nth-child(2) {
+    animation-delay: 190ms;
+}
+
+.nav-stagger > *:nth-child(3) {
+    animation-delay: 245ms;
+}
+
+.nav-stagger > *:nth-child(4) {
+    animation-delay: 300ms;
+}
+
+.nav-stagger > *:nth-child(5) {
+    animation-delay: 355ms;
+}
+
+.nav-stagger > *:nth-child(6) {
+    animation-delay: 410ms;
+}
+
+.nav-stagger > *:nth-child(7) {
+    animation-delay: 465ms;
+}
+
+.nav-stagger > *:nth-child(8) {
+    animation-delay: 520ms;
+}
+
+.nav-stagger > *:nth-child(9) {
+    animation-delay: 575ms;
+}
+
+.nav-stagger > *:nth-child(10) {
+    animation-delay: 630ms;
+}
+
+.nav-stagger > *:nth-child(11) {
+    animation-delay: 685ms;
+}
+
+.nav-stagger > *:nth-child(12) {
+    animation-delay: 740ms;
+}
+
+/* Cursor glow: a soft coloured light that trails the pointer. The colour is
+   set from JavaScript as --glow-rgb and shifts across the window. */
+:root {
+    --glow-rgb: 58 99 224;
+}
+
+.cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    width: 200px;
+    height: 200px;
+    margin: -100px 0 0 -100px;
+    border-radius: 9999px;
+    background: radial-gradient(
+        circle,
+        rgb(var(--glow-rgb) / 0.18) 0%,
+        rgb(var(--glow-rgb) / 0.07) 40%,
+        transparent 70%
+    );
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    will-change: transform;
+}
+
+.cursor-glow.is-active {
+    opacity: 1;
+}
+
+/* Spotlight: a card lights up under the pointer. */
+.spotlight {
+    position: relative;
+    isolation: isolate;
+}
+
+.spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(
+        170px circle at var(--mx, 50%) var(--my, 50%),
+        rgb(var(--glow-rgb) / 0.13),
+        transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.spotlight:hover::before {
+    opacity: 1;
 }

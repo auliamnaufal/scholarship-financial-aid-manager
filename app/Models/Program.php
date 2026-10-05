@@ -105,9 +105,9 @@ class Program extends Model
     public function coverGradient(): string
     {
         $gradients = [
-            'linear-gradient(135deg, #4f46e5, #7c3aed 55%, #c026d3)',
-            'linear-gradient(135deg, #7c3aed, #c026d3 60%, #4f46e5)',
-            'linear-gradient(135deg, #4338ca, #6366f1 50%, #a21caf)',
+            'linear-gradient(135deg, #0f172a, #1c2f66 60%, #2a4cc2)',
+            'linear-gradient(135deg, #111a3d, #223e9c 55%, #3a63e0)',
+            'linear-gradient(135deg, #1e293b, #1f3680 55%, #0e7490)',
         ];
 
         return $gradients[($this->id ?? 0) % count($gradients)];

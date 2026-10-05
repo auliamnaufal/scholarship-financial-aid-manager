@@ -35,7 +35,7 @@
     /** Show the two arrow buttons. */
     'controls' => true,
     /** What a screen reader calls the carousel. */
-    'label' => 'Featured',
+    'label' => __('Featured'),
 ])
 
 @php

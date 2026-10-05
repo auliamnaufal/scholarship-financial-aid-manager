@@ -1,8 +1,8 @@
-<div x-data="{ open: false }">
+<div>
     <!-- Mobile top bar -->
     <div class="sticky top-0 z-40 flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
         <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-display font-bold text-slate-900">
-            <x-application-logo class="h-7 w-7 fill-current text-indigo-600" />
+            <x-application-logo class="h-7 w-7" />
             {{ config('app.name') }}
         </a>
         <button @click="open = true" aria-label="{{ __('Open menu') }}" class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700">
@@ -26,14 +26,19 @@
 
     <!-- Sidebar -->
     <aside
-        :class="open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-        class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 transform flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 transition-transform duration-200 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
+        :class="[open ? 'translate-x-0' : '-translate-x-full', collapsed ? 'lg:-ml-72' : 'lg:ml-0']"
+        class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 transform flex-col bg-gradient-to-b from-slate-900 via-slate-900 to-indigo-950 transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0"
     >
         <div class="flex items-center gap-2 px-6 py-6">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-display text-lg font-bold text-white">
-                <x-application-logo class="h-8 w-8 fill-current text-indigo-400" />
+                <x-application-logo class="h-8 w-8" />
                 {{ config('app.name') }}
             </a>
+            <button @click="collapsed = true" aria-label="{{ __('Close menu') }}" title="{{ __('Close menu') }}" class="ms-auto hidden rounded-lg p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white lg:inline-flex">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                </svg>
+            </button>
             <button @click="open = false" aria-label="{{ __('Close menu') }}" class="ms-auto text-slate-400 hover:text-white lg:hidden">
                 <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -41,7 +46,7 @@
             </button>
         </div>
 
-        <nav class="flex-1 space-y-1 overflow-y-auto px-4 pb-4">
+        <nav class="nav-stagger flex-1 space-y-1 overflow-y-auto px-4 pb-4">
             <x-nav-link :href="route('home')" :active="request()->routeIs('home', 'scholarships.show')">
                 <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 6.5A2.5 2.5 0 0 1 6.5 4H12v16H6.5A2.5 2.5 0 0 1 4 17.5v-11Z" />
@@ -115,7 +120,7 @@
 
         <div class="border-t border-white/10 p-4">
             <div class="flex items-center gap-3 rounded-xl bg-white/5 p-3">
-                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-xs font-semibold text-white">
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-xs font-semibold text-white">
                     {{ Str::of(Auth::user()->name)->substr(0, 1)->upper() }}
                 </span>
                 <div class="min-w-0">
@@ -125,7 +130,7 @@
             </div>
 
             <div class="mt-2 space-y-1">
-                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
+                <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition duration-200 hover:translate-x-1 hover:bg-white/5 hover:text-white [&>svg]:transition-transform hover:[&>svg]:scale-110">
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                         <circle cx="12" cy="8" r="3.25" />
                         <path stroke-linecap="round" d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" />
@@ -137,7 +142,7 @@
                     @csrf
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); this.closest('form').submit();"
-                       class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">
+                       class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-300 transition duration-200 hover:translate-x-1 hover:bg-white/5 hover:text-white [&>svg]:transition-transform hover:[&>svg]:scale-110">
                         <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12h-9m9 0l-3-3m3 3l-3 3" />
                         </svg>

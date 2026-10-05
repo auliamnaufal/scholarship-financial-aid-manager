@@ -15,6 +15,7 @@ class ProgramController extends Controller
     {
         $programs = Program::query()
             ->where('application_deadline', '>=', Date::today())
+            ->withCount('requirements')
             ->orderBy('application_deadline')
             ->get();
 
@@ -23,6 +24,8 @@ class ProgramController extends Controller
 
     public function show(Program $program): View
     {
+        $program->load('requirements.requirementType');
+
         return view('programs.show', compact('program'));
     }
 }
