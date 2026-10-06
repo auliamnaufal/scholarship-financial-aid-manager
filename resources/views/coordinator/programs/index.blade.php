@@ -19,8 +19,15 @@
                     </a>
                 </div>
 
+                <x-search-form :action="route('coordinator.programs.index')" :placeholder="__('Search scholarship or funder')">
+                    <x-filter-select name="type" :label="__('Type')" :selected="$type"
+                        :options="collect(\App\Enums\ProgramType::cases())->mapWithKeys(fn ($t) => [$t->value => $t->label()])" />
+                    <x-filter-select name="show" :label="__('Status')" :selected="$show"
+                        :options="['active' => __('Active'), 'archived' => __('Archived')]" />
+                </x-search-form>
+
                 @if ($programs->isEmpty())
-                    <p class="text-slate-500">{{ __('You do not manage any programs yet.') }}</p>
+                    <p class="text-slate-500">{{ request()->query() ? __('No scholarships match your search.') : __('You do not manage any programs yet.') }}</p>
                 @else
                     <div class="overflow-x-auto">
                         <table class="data-table">
@@ -85,6 +92,8 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="mt-4">{{ $programs->links() }}</div>
                 @endif
             </x-card>
         </div>

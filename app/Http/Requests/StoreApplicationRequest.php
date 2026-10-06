@@ -6,6 +6,7 @@ use App\Enums\RequirementKind;
 use App\Models\Application;
 use App\Models\Program;
 use App\Support\ApplyRules;
+use App\Support\Semester;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -25,7 +26,7 @@ class StoreApplicationRequest extends FormRequest
     {
         $rules = [
             'program_id' => ['required', 'integer', 'exists:programs,id'],
-            'semester' => ['required', 'string', 'max:20'],
+            'semester' => Semester::rules(),
         ];
 
         // One rule per requirement this scholarship actually asks for, so an

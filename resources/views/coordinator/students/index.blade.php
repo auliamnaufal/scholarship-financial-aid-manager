@@ -21,8 +21,13 @@
                     </a>
                 </div>
 
+                <x-search-form :action="route('coordinator.students.index')" :placeholder="__('Search name, email or NIM')">
+                    <x-filter-select name="show" :label="__('Account')" :selected="$show"
+                        :options="['active' => __('Active'), 'archived' => __('Archived')]" />
+                </x-search-form>
+
                 @if ($students->isEmpty())
-                    <p class="text-slate-500">{{ __('No student accounts yet.') }}</p>
+                    <p class="text-slate-500">{{ request()->query() ? __('No students match your search.') : __('No student accounts yet.') }}</p>
                 @else
                     <div class="overflow-x-auto">
                         <table class="data-table">
@@ -100,6 +105,8 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <div class="mt-4">{{ $students->links() }}</div>
                 @endif
             </x-card>
         </div>

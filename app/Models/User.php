@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+// Email verification is deliberately off: the app sends no mail, so a new
+// account could never confirm its address and would be locked out. Implementing
+// MustVerifyEmail turns the `verified` middleware on the routes into a real check.
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -58,6 +61,15 @@ class User extends Authenticatable
     public function guardianPhones(): HasMany
     {
         return $this->hasMany(GuardianPhone::class);
+    }
+
+    /** Replaces the guardian's numbers with these, dropping blanks and repeats. */
+    public function syncGuardianPhones(array $numbers): void
+    {
+        $numbers = collect($numbers)->map(fn ($n) => trim((string) $n))->filter()->unique()->values();
+
+        $this->guardianPhones()->delete();
+        $this->guardianPhones()->createMany($numbers->map(fn ($n) => ['phone_number' => $n])->all());
     }
 
     public function programsManaged(): HasMany

@@ -8,18 +8,13 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
-                <form method="GET" action="{{ route('coordinator.applications.index') }}" class="mb-4 flex items-center gap-3">
-                    <label for="status" class="text-sm text-slate-600">{{ __('Filter by status') }}</label>
-                    <select id="status" name="status" class="border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm" onchange="this.form.submit()">
-                        <option value="">{{ __('All') }}</option>
-                        @foreach ($statuses as $status)
-                            <option value="{{ $status->value }}" @selected($selectedStatus === $status->value)>{{ $status->label() }}</option>
-                        @endforeach
-                    </select>
-                </form>
+                <x-search-form :action="route('coordinator.applications.index')" :placeholder="__('Search student or scholarship')">
+                    <x-filter-select name="status" :label="__('Status')" :selected="$selectedStatus"
+                        :options="collect($statuses)->mapWithKeys(fn ($st) => [$st->value => $st->label()])" />
+                </x-search-form>
 
                 @if ($applications->isEmpty())
-                    <p class="text-slate-500">{{ __('No applications found.') }}</p>
+                    <p class="text-slate-500">{{ request()->query() ? __('No applications match your search.') : __('No applications found.') }}</p>
                 @else
                     <div class="overflow-x-auto"><table class="data-table">
                         <thead>
@@ -49,6 +44,8 @@
                             @endforeach
                         </tbody>
                     </table></div>
+
+                    <div class="mt-4">{{ $applications->links() }}</div>
                 @endif
             </div>
         </div>

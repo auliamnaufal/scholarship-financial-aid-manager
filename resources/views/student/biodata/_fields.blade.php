@@ -1,1 +1,1 @@
-@include('partials._student-profile-fields', ['profile' => $profile])
+@include('partials._student-profile-fields', ['profile' => $profile, 'guardianPhones' => $guardianPhones ?? []])

@@ -25,6 +25,18 @@ class ReviewController extends Controller
             ->with('status', __('Review submitted.'));
     }
 
+    public function destroy(Review $review): RedirectResponse
+    {
+        $this->authorize('delete', $review);
+
+        $application = $review->application;
+        $review->delete();
+
+        return redirect()
+            ->route('reviewer.applications.show', $application)
+            ->with('status', __('Review deleted. You can submit a new one.'));
+    }
+
     public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
     {
         $review->update($request->validated());

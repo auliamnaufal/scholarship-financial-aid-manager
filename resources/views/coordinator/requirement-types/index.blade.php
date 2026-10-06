@@ -75,6 +75,8 @@
                             @endforeach
                         </tbody>
                     </table></div>
+
+                    <div class="mt-4">{{ $types->links() }}</div>
                 @endif
             </x-card>
         </div>

@@ -151,7 +151,11 @@ return [
     'ulid' => ':Attribute harus berupa ULID yang valid.',
     'uuid' => ':Attribute harus berupa UUID yang valid.',
 
-    'custom' => [],
+    'custom' => [
+        'semester' => [
+            'regex' => 'Pilih semester dari daftar yang tersedia.',
+        ],
+    ],
 
     'attributes' => [
         'name' => 'nama',
@@ -160,6 +164,8 @@ return [
         'password_confirmation' => 'konfirmasi kata sandi',
         'current_password' => 'kata sandi saat ini',
         'roles' => 'peran',
+        'guardian_phones' => 'nomor telepon wali',
+        'guardian_phones.*' => 'nomor telepon wali',
         'type' => 'tipe',
         'funding_source' => 'sumber dana',
         'budget' => 'anggaran',

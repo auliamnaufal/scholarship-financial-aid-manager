@@ -19,6 +19,12 @@ class ReviewPolicy
             && ! $application->reviews()->where('reviewer_id', $user->id)->exists();
     }
 
+    /** Withdrawing your own assessment follows the same window as revising it. */
+    public function delete(User $user, Review $review): bool
+    {
+        return $this->update($user, $review);
+    }
+
     /**
      * A reviewer may revise their own assessment while the application is
      * still under review. Once the coordinator approves or rejects it the

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,17 +19,30 @@ use Illuminate\View\View;
  */
 class StudentController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $show = $request->string('show')->toString();
+
         $students = User::role('student')
             ->withTrashed()
+            ->when($show === 'active', fn ($query) => $query->whereNull('deleted_at'))
+            ->when($show === 'archived', fn ($query) => $query->whereNotNull('deleted_at'))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%'.trim($request->string('q')).'%';
+
+                $query->where(fn ($q) => $q
+                    ->where('name', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhereHas('studentProfile', fn ($p) => $p->where('nim', 'like', $term)));
+            })
             ->with('studentProfile')
             ->withCount('applications')
             ->orderByRaw('deleted_at is not null')
             ->orderBy('name')
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('coordinator.students.index', compact('students'));
+        return view('coordinator.students.index', compact('students', 'show'));
     }
 
     public function create(): View
@@ -47,6 +61,7 @@ class StudentController extends Controller
 
             $student->assignRole('student');
             $student->studentProfile()->create($request->profileAttributes());
+            $student->syncGuardianPhones($request->validated('guardian_phones') ?? []);
 
             return $student;
         });
@@ -58,7 +73,7 @@ class StudentController extends Controller
 
     public function edit(User $student): View
     {
-        $student->load('studentProfile');
+        $student->load(['studentProfile', 'guardianPhones']);
 
         return view('coordinator.students.edit', compact('student'));
     }
@@ -80,6 +95,7 @@ class StudentController extends Controller
                 ['user_id' => $student->id],
                 $request->profileAttributes(),
             );
+            $student->syncGuardianPhones($request->validated('guardian_phones') ?? []);
         });
 
         return redirect()

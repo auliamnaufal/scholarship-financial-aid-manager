@@ -49,6 +49,26 @@
             <x-input-error :messages="$errors->get('phone')" class="mt-2" />
         </div>
 
+        <div class="sm:col-span-2"
+             x-data="{ phones: {{ Js::from(array_values(old('guardian_phones', $guardianPhones ?? [])) ?: ['']) }} }">
+            <x-input-label :value="__('Guardian phone numbers')" />
+            <p class="mt-1 text-xs text-slate-500">{{ __('Up to 5 numbers the scholarship office can reach if the student cannot be contacted.') }}</p>
+
+            <template x-for="(phone, index) in phones" :key="index">
+                <div class="mt-2 flex items-center gap-2">
+                    <input type="text" name="guardian_phones[]" x-model="phones[index]" maxlength="32"
+                        class="block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <button type="button" x-show="phones.length > 1" x-on:click="phones.splice(index, 1)"
+                        class="shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">{{ __('Remove') }}</button>
+                </div>
+            </template>
+
+            <button type="button" x-show="phones.length < 5" x-on:click="phones.push('')"
+                class="mt-2 text-sm font-medium text-indigo-600 hover:underline">{{ __('Add another number') }}</button>
+            <x-input-error :messages="$errors->get('guardian_phones')" class="mt-2" />
+            <x-input-error :messages="$errors->get('guardian_phones.*')" class="mt-2" />
+        </div>
+
         <div class="sm:col-span-2">
             <x-input-label for="address" :value="__('Address')" />
             <textarea id="address" name="address" rows="2" class="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('address', $profile?->address) }}</textarea>

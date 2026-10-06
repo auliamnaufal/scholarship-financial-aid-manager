@@ -19,7 +19,7 @@ class RequirementTypeController extends Controller
         $types = RequirementType::query()
             ->withCount(['programRequirements', 'applicationDocuments'])
             ->orderBy('name')
-            ->get();
+            ->paginate(15);
 
         return view('coordinator.requirement-types.index', compact('types'));
     }

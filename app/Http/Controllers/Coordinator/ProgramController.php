@@ -7,24 +7,40 @@ use App\Http\Requests\ProgramRequest;
 use App\Models\Program;
 use App\Models\RequirementType;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ProgramController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('viewAny', Program::class);
 
+        $show = $request->string('show')->toString();
+
         $programs = Auth::user()->programsManaged()
             ->withTrashed()
+            ->when($show === 'active', fn ($query) => $query->whereNull('deleted_at'))
+            ->when($show === 'archived', fn ($query) => $query->whereNotNull('deleted_at'))
+            ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%'.trim($request->string('q')).'%';
+
+                $query->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('funding_source', 'like', $term));
+            })
             ->withCount('applications')
             ->orderByRaw('deleted_at is not null')
             ->orderBy('application_deadline')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('coordinator.programs.index', compact('programs'));
+        return view('coordinator.programs.index', [
+            'programs' => $programs,
+            'show' => $show,
+            'type' => $request->string('type')->toString(),
+        ]);
     }
 
     public function create(): View

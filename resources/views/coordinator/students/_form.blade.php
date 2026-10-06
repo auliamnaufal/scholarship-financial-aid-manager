@@ -36,5 +36,5 @@
 </section>
 
 <div class="mt-8 border-t border-slate-200 pt-6">
-    @include("partials._student-profile-fields", ["profile" => $profile])
+    @include("partials._student-profile-fields", ["profile" => $profile, "guardianPhones" => $student?->guardianPhones->pluck("phone_number")->all() ?? []])
 </div>

@@ -76,6 +76,16 @@
                             <x-primary-button>{{ __('Update Review') }}</x-primary-button>
                         </div>
                     </form>
+
+                    <form method="POST" action="{{ route('reviewer.reviews.destroy', $myReview) }}" class="mt-3 border-t border-slate-100 pt-3 text-right"
+                          data-confirm-title="{{ __('Delete your review?') }}"
+                          data-confirm-message="{{ __('Your score and comments are removed. You can submit a new review while the application is still under review.') }}"
+                          data-confirm-label="{{ __('Yes, delete') }}"
+                          data-confirm-tone="danger">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-sm font-medium text-red-600 hover:underline">{{ __('Delete my review') }}</button>
+                    </form>
                 @elseif ($myReview)
                     <p class="text-slate-700">{{ __('Score') }}: {{ $myReview->score }}</p>
                     @if ($myReview->comments)

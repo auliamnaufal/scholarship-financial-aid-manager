@@ -22,9 +22,18 @@ class ApplicationController extends Controller
         $applications = Application::query()
             ->whereIn('program_id', $programIds)
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->when($request->filled('q'), function ($query) use ($request) {
+                $term = '%'.trim($request->string('q')).'%';
+
+                $query->where(fn ($q) => $q
+                    ->whereHas('student', fn ($s) => $s->where('name', 'like', $term)->orWhere('email', 'like', $term))
+                    ->orWhereHas('program', fn ($p) => $p->where('name', 'like', $term)));
+            })
             ->with(['student', 'program'])
             ->latest('submission_date')
-            ->get();
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
 
         return view('coordinator.applications.index', [
             'applications' => $applications,

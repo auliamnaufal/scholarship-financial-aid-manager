@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateBiodataRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -19,6 +20,7 @@ class BiodataController extends Controller
     {
         return view('student.biodata.edit', [
             'profile' => Auth::user()->studentProfile,
+            'guardianPhones' => Auth::user()->guardianPhones->pluck('phone_number')->all(),
         ]);
     }
 
@@ -26,8 +28,9 @@ class BiodataController extends Controller
     {
         Auth::user()->studentProfile()->updateOrCreate(
             ['user_id' => Auth::id()],
-            $request->validated(),
+            Arr::except($request->validated(), ['guardian_phones']),
         );
+        Auth::user()->syncGuardianPhones($request->validated('guardian_phones') ?? []);
 
         return redirect()
             ->route('student.biodata.edit')

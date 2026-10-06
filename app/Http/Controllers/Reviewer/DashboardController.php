@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reviewer;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
@@ -36,8 +37,11 @@ class DashboardController extends Controller
         $allSubmissions = Application::query()
             ->with(['student', 'program'])
             ->latest('submission_date')
-            ->get();
+            ->latest('id')
+            ->paginate(10);
 
-        return view('reviewer.dashboard', compact('claimable', 'awaitingMyReview', 'allSubmissions'));
+        $reviewedByMe = Review::where('reviewer_id', Auth::id())->count();
+
+        return view('reviewer.dashboard', compact('claimable', 'awaitingMyReview', 'allSubmissions', 'reviewedByMe'));
     }
 }

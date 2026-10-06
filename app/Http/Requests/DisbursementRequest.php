@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Application;
 use App\Models\Disbursement;
 use App\Support\Money;
+use App\Support\Semester;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -29,7 +30,7 @@ class DisbursementRequest extends FormRequest
             'seq_no' => ['required', 'integer', 'min:1'],
             'amount' => ['required', 'numeric', 'min:0.01'],
             'disbursement_date' => ['required', 'date'],
-            'semester' => ['required', 'string', 'max:20'],
+            'semester' => Semester::rules(),
         ];
     }
 

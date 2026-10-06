@@ -19,6 +19,11 @@
 </div>
 <div>
     <x-input-label for="semester" :value="__('Semester')" />
-    <x-text-input id="semester" name="semester" type="text" class="mt-1 block w-full" :value="old('semester', $disbursement?->semester ?? $application->semester)" required />
+    <select id="semester" name="semester" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm" required>
+        @php $chosen = old('semester', $disbursement?->semester ?? $application->semester); @endphp
+        @foreach (\App\Support\Semester::options(include: $chosen) as $value => $label)
+            <option value="{{ $value }}" @selected($chosen === $value)>{{ $label }}</option>
+        @endforeach
+    </select>
     <x-input-error :messages="$errors->get('semester')" class="mt-2" />
 </div>

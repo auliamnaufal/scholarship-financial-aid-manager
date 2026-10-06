@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified', 'role:reviewer|coordinator'])
         Route::get('/applications/{application}', [ReviewerApplicationController::class, 'show'])->name('applications.show');
         Route::post('/applications/{application}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     });
 
 Route::middleware(['auth', 'verified', 'role:coordinator'])
@@ -100,6 +101,10 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::get('/users', [CoordinatorUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [CoordinatorUserController::class, 'create'])->name('users.create');
         Route::post('/users', [CoordinatorUserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [CoordinatorUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [CoordinatorUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [CoordinatorUserController::class, 'destroy'])->name('users.destroy');
+        Route::post('/users/{user}/restore', [CoordinatorUserController::class, 'restore'])->name('users.restore');
     });
 
 require __DIR__.'/auth.php';

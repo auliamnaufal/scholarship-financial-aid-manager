@@ -11,6 +11,18 @@
                 <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700">{{ session('status') }}</div>
             @endif
 
+            <div class="grid gap-4 sm:grid-cols-3">
+                <x-stat-card :label="__('Waiting to be claimed')" :value="$claimable->count()" tone="indigo">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4 13h4l2 3h4l2-3h4M5 5h14l2 8v6H3v-6l2-8Z" /></svg>
+                </x-stat-card>
+                <x-stat-card :label="__('Awaiting your review')" :value="$awaitingMyReview->count()" tone="amber">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z" /></svg>
+                </x-stat-card>
+                <x-stat-card :label="__('Reviews you have written')" :value="$reviewedByMe" tone="emerald">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9" /><path stroke-linecap="round" stroke-linejoin="round" d="m8.5 12.5 2.5 2.5 4.5-5" /></svg>
+                </x-stat-card>
+            </div>
+
             <div class="bg-white overflow-hidden shadow-soft ring-1 ring-slate-900/5 rounded-xl p-6">
                 <h3 class="text-lg font-medium mb-4">{{ __('Open Applications (claim to review)') }}</h3>
                 @if ($claimable->isEmpty())
@@ -117,6 +129,8 @@
                             @endforeach
                         </tbody>
                     </table></div>
+
+                    <div class="mt-4">{{ $allSubmissions->links() }}</div>
                 @endif
             </div>
         </div>
