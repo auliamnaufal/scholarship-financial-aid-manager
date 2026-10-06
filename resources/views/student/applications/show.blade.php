@@ -50,13 +50,17 @@
                         method="POST"
                         action="{{ route('student.applications.cancel', $application) }}"
                         class="mt-6 border-t border-slate-200 pt-4"
-                        onsubmit="return confirm('{{ __('Withdraw this application? You cannot undo this, but you may apply again while the scholarship is still open.') }}')"
+                        data-confirm-title="{{ __('Withdraw application?') }}"
+                        data-confirm-message="{{ __('The application will be withdrawn and cannot be restored. You may apply again for a different semester while the scholarship is still open.') }}"
+                        data-confirm-label="{{ __('Yes, withdraw') }}"
+                        data-confirm-tone="danger"
                     >
                         @csrf
-                        <button type="submit" class="text-sm font-medium text-red-600 hover:underline">
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
                             {{ __('Withdraw this application') }}
                         </button>
-                        <p class="mt-1 text-xs text-slate-500">
+                        <p class="mt-2 text-xs text-slate-500">
                             {{ __('You can withdraw until the coordinator makes a decision.') }}
                         </p>
                     </form>

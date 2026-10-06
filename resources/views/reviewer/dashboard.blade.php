@@ -32,7 +32,11 @@
                                     <td class="px-4 py-2">{{ $application->program->name }}</td>
                                     <td class="px-4 py-2">{{ $application->semester }}</td>
                                     <td class="px-4 py-2">
-                                        <form method="POST" action="{{ route('reviewer.applications.claim', $application) }}">
+                                        <form method="POST" action="{{ route('reviewer.applications.claim', $application) }}"
+                                        data-confirm-title="{{ __('Claim this application?') }}"
+                                        data-confirm-message="{{ __('It will move to under review, and you can then give it a score.') }}"
+                                        data-confirm-label="{{ __('Yes, claim') }}"
+                                        data-confirm-tone="primary">
                                             @csrf
                                             <button type="submit" class="px-3 py-1 bg-indigo-700 text-white rounded-xl shadow-sm transition hover:bg-indigo-600 text-xs font-medium">
                                                 {{ __('Claim') }}

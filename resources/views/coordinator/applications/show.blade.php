@@ -49,7 +49,11 @@
                     @php $budgetLeft = $application->program->remainingBudget(); @endphp
 
                     <div class="mt-6 border-t border-slate-200 pt-6">
-                        <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}" class="flex flex-wrap items-end gap-3">
+                        <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}" class="flex flex-wrap items-end gap-3"
+                            data-confirm-title="{{ __('Approve this application?') }}"
+                            data-confirm-message="{{ __('The student will be awarded Rp {awarded_amount}. This decision cannot be changed.') }}"
+                            data-confirm-label="{{ __('Yes, approve') }}"
+                            data-confirm-tone="success">
                             @csrf
                             <div>
                                 <x-input-label for="awarded_amount" :value="__('Amount to award')" />
@@ -64,7 +68,11 @@
 
                         <x-input-error :messages="$errors->get('awarded_amount')" class="mt-2" />
 
-                        <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}" class="mt-4">
+                        <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}" class="mt-4"
+                            data-confirm-title="{{ __('Reject this application?') }}"
+                            data-confirm-message="{{ __('The application will be marked as rejected. This decision cannot be changed.') }}"
+                            data-confirm-label="{{ __('Yes, reject') }}"
+                            data-confirm-tone="danger">
                             @csrf
                             <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg shadow-sm transition hover:bg-red-500 text-sm font-medium">{{ __('Reject') }}</button>
                         </form>

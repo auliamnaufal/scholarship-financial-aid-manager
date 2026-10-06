@@ -143,7 +143,29 @@ class DatabaseSeeder extends Seeder
                 $pairs->push([$student, $program]);
             }
         }
-        $pairs = $pairs->shuffle()->take(20)->values();
+        $pairs = $pairs->shuffle()->values();
+
+        // The demo student comes first, so the first two applications are
+        // theirs: one waiting to be claimed and one under review, as the README
+        // promises. Nobody gets more than two, so the lists stay easy to read.
+        $demoStudent = $students->first();
+        $perStudent = [];
+        $chosen = collect();
+
+        foreach ($pairs->sortBy(fn (array $pair) => $pair[0]->is($demoStudent) ? 0 : 1)->values() as [$student, $program]) {
+            if ($chosen->count() >= 20) {
+                break;
+            }
+
+            if (($perStudent[$student->id] ?? 0) >= 2) {
+                continue;
+            }
+
+            $perStudent[$student->id] = ($perStudent[$student->id] ?? 0) + 1;
+            $chosen->push([$student, $program]);
+        }
+
+        $pairs = $chosen;
 
         $statusCycle = [
             ApplicationStatus::Submitted,
@@ -242,7 +264,11 @@ class DatabaseSeeder extends Seeder
 
         // 5c. One cancelled application, so the withdrawn state is visible in
         // the demo without having to click through the flow.
-        $cancelled = $applications->firstWhere('status', ApplicationStatus::Submitted);
+        // Never the demo student's, whose two applications are meant to be live.
+        $cancelled = $applications->first(
+            fn (Application $application) => $application->status === ApplicationStatus::Submitted
+                && $application->student_id !== $demoStudent->id,
+        );
 
         if ($cancelled) {
             $cancelled->update([

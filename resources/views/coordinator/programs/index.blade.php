@@ -63,7 +63,10 @@
                                                     <form
                                                         method="POST"
                                                         action="{{ route('coordinator.programs.destroy', $program) }}"
-                                                        onsubmit="return confirm('{{ __('Archive this program? It disappears from the public listing and takes no new applications. Existing applications are kept.') }}')"
+                                                        data-confirm-title="{{ __('Archive this program?') }}"
+                                                        data-confirm-message="{{ __('It disappears from the public listing and takes no new applications. Existing applications are kept.') }}"
+                                                        data-confirm-label="{{ __('Yes, archive') }}"
+                                                        data-confirm-tone="danger"
                                                     >
                                                         @csrf
                                                         @method('DELETE')

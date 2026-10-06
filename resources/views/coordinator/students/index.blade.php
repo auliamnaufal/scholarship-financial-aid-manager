@@ -83,7 +83,10 @@
                                                     <form
                                                         method="POST"
                                                         action="{{ route('coordinator.students.destroy', $student) }}"
-                                                        onsubmit="return confirm('{{ __('Archive this student? They can no longer sign in. Their applications, reviews and payment records are kept.') }}')"
+                                                        data-confirm-title="{{ __('Archive this student?') }}"
+                                                        data-confirm-message="{{ __('They can no longer sign in. Their applications, reviews and payment records are kept.') }}"
+                                                        data-confirm-label="{{ __('Yes, archive') }}"
+                                                        data-confirm-tone="danger"
                                                     >
                                                         @csrf
                                                         @method('DELETE')

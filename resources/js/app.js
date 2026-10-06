@@ -3,6 +3,7 @@ import './bootstrap';
 import Alpine from 'alpinejs';
 import squeezeCarousel from './squeeze-carousel';
 import './cursor-glow';
+import './confirm-dialog';
 
 window.Alpine = Alpine;
 
