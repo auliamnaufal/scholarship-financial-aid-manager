@@ -138,6 +138,7 @@
                                 <th class="px-4 py-2">{{ __('Amount') }}</th>
                                 <th class="px-4 py-2">{{ __('Date') }}</th>
                                 <th class="px-4 py-2">{{ __('Semester') }}</th>
+                                <th class="px-4 py-2">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,6 +148,22 @@
                                     <td class="px-4 py-2">{{ \App\Support\Money::rupiah($disbursement->amount) }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->disbursement_date->format('Y-m-d') }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->semester }}</td>
+                                    <td class="px-4 py-2">
+                                        @can('update', $disbursement)
+                                            <div class="flex items-center gap-3">
+                                                <a href="{{ route('coordinator.disbursements.edit', [$application, $disbursement]) }}" class="text-sm font-medium text-indigo-600 hover:underline">{{ __('Edit') }}</a>
+                                                <form method="POST" action="{{ route('coordinator.disbursements.destroy', [$application, $disbursement]) }}"
+                                                      data-confirm-title="{{ __('Delete this disbursement?') }}"
+                                                      data-confirm-message="{{ __('Payment #:number will be removed and its amount counts as still to be paid.', ['number' => $disbursement->seq_no]) }}"
+                                                      data-confirm-label="{{ __('Yes, delete') }}"
+                                                      data-confirm-tone="danger">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-sm font-medium text-red-600 hover:underline">{{ __('Delete') }}</button>
+                                                </form>
+                                            </div>
+                                        @endcan
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -156,26 +173,7 @@
                 @can('create', [\App\Models\Disbursement::class, $application])
                     <form method="POST" action="{{ route('coordinator.disbursements.store', $application) }}" class="grid grid-cols-2 gap-4">
                         @csrf
-                        <div>
-                            <x-input-label for="seq_no" :value="__('Sequence #')" />
-                            <x-text-input id="seq_no" name="seq_no" type="number" min="1" class="mt-1 block w-full" :value="old('seq_no')" required />
-                            <x-input-error :messages="$errors->get('seq_no')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="amount" :value="__('Amount')" />
-                            <x-text-input id="amount" name="amount" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('amount')" required />
-                            <x-input-error :messages="$errors->get('amount')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="disbursement_date" :value="__('Date')" />
-                            <x-text-input id="disbursement_date" name="disbursement_date" type="date" class="mt-1 block w-full" :value="old('disbursement_date')" required />
-                            <x-input-error :messages="$errors->get('disbursement_date')" class="mt-2" />
-                        </div>
-                        <div>
-                            <x-input-label for="semester" :value="__('Semester')" />
-                            <x-text-input id="semester" name="semester" type="text" class="mt-1 block w-full" :value="old('semester', $application->semester)" required />
-                            <x-input-error :messages="$errors->get('semester')" class="mt-2" />
-                        </div>
+                        @include('coordinator.disbursements._fields', ['disbursement' => null])
                         <div class="col-span-2">
                             <x-primary-button>{{ __('Record Disbursement') }}</x-primary-button>
                         </div>

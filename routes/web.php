@@ -86,6 +86,10 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::post('/applications/{application}/approve', [CoordinatorApplicationController::class, 'approve'])->name('applications.approve');
         Route::post('/applications/{application}/reject', [CoordinatorApplicationController::class, 'reject'])->name('applications.reject');
         Route::post('/applications/{application}/disbursements', [DisbursementController::class, 'store'])->name('disbursements.store');
+        // scopeBindings: the disbursement must belong to the application in the URL.
+        Route::get('/applications/{application}/disbursements/{disbursement}/edit', [DisbursementController::class, 'edit'])->scopeBindings()->name('disbursements.edit');
+        Route::put('/applications/{application}/disbursements/{disbursement}', [DisbursementController::class, 'update'])->scopeBindings()->name('disbursements.update');
+        Route::delete('/applications/{application}/disbursements/{disbursement}', [DisbursementController::class, 'destroy'])->scopeBindings()->name('disbursements.destroy');
         Route::get('/users', [CoordinatorUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [CoordinatorUserController::class, 'create'])->name('users.create');
         Route::post('/users', [CoordinatorUserController::class, 'store'])->name('users.store');
