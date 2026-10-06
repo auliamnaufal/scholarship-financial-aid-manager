@@ -23,6 +23,12 @@ class DatabaseSeeder extends Seeder
     private const SEMESTER = '2026-1';
 
     /**
+     * Jumlah program contoh. Dibagi rata ke para koordinator, jadi satu
+     * koordinator bisa mengelola lebih dari satu program.
+     */
+    private const PROGRAM_COUNT = 12;
+
+    /**
      * Isi esai contoh untuk persyaratan bertipe teks.
      */
     private const ESSAY_PARAGRAPHS = [
@@ -84,9 +90,10 @@ class DatabaseSeeder extends Seeder
 
         $allCoordinators = $dedicatedCoordinators->concat($overlapReviewers)->values();
 
-        // 4. Programs (5), one per coordinator, alternating type.
+        // 4. Programs, spread across the coordinators, alternating type.
         $programs = collect();
-        foreach ($allCoordinators as $index => $coordinator) {
+        for ($index = 0; $index < self::PROGRAM_COUNT; $index++) {
+            $coordinator = $allCoordinators[$index % $allCoordinators->count()];
             $type = $index % 2 === 0 ? 'need_based' : 'merit_based';
 
             $programs->push(Program::factory()->forType($type)->create([

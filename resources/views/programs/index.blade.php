@@ -1,6 +1,6 @@
 <x-public-layout>
     @php
-        $featured = $programs->first();
+        $featured = $stats['featured'];
         $daysLeft = fn ($program) => (int) now()->startOfDay()->diffInDays($program->application_deadline->copy()->startOfDay(), false);
         $deadlineText = function ($program) use ($daysLeft) {
             $days = $daysLeft($program);
@@ -10,6 +10,22 @@
         $eligibility = fn ($program) => $program->type->value === 'need_based'
             ? 'Penghasilan ≤ '.\App\Support\Money::rupiah($program->max_family_income)
             : 'IPK ≥ '.number_format((float) $program->min_gpa, 2, ',', '.');
+
+        $isStudent = $matches->isNotEmpty();
+        $eligibleCount = $matches->where('state', 'eligible')->count();
+        $badgeStyles = [
+            'eligible' => 'bg-emerald-500 text-white',
+            'ineligible' => 'bg-slate-800/80 text-slate-100',
+            'incomplete' => 'bg-amber-400 text-slate-900',
+            'applied' => 'bg-indigo-600 text-white',
+        ];
+        $cards = $programs->map(fn ($program) => [
+            'name' => $program->name,
+            'type' => $program->type->value,
+            'source' => $program->funding_source,
+            'days' => $daysLeft($program),
+            'state' => $matches[$program->id]['state'] ?? null,
+        ])->values();
     @endphp
 
     {{-- Hero --}}
@@ -50,18 +66,18 @@
                     @endguest
                 </div>
 
-                @if ($programs->isNotEmpty())
+                @if ($stats['count'] > 0)
                     <dl class="mt-12 grid max-w-xl animate-fade-up grid-cols-3 gap-4 border-t border-white/10 pt-8 sm:gap-6" style="animation-delay: 480ms">
                         <div>
-                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ $programs->count() }}</dd>
+                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ $stats['count'] }}</dd>
                             <dt class="mt-1 text-xs text-indigo-200">Program dibuka</dt>
                         </div>
                         <div>
-                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ \App\Support\Money::compact($programs->sum('budget')) }}</dd>
+                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ \App\Support\Money::compact($stats['budget']) }}</dd>
                             <dt class="mt-1 text-xs text-indigo-200">Total pendanaan</dt>
                         </div>
                         <div>
-                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ $programs->first()->application_deadline->translatedFormat('d M') }}</dd>
+                            <dd class="font-display text-2xl font-bold text-white sm:text-3xl">{{ $stats['closing']->translatedFormat('d M') }}</dd>
                             <dt class="mt-1 text-xs text-indigo-200">Penutupan terdekat</dt>
                         </div>
                     </dl>
@@ -102,11 +118,21 @@
     <section id="beasiswa" class="scroll-mt-16 py-16 sm:py-20">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
              x-data="{
+                 cards: @js($cards),
                  q: '',
                  type: 'all',
-                 shown(name, type) {
-                     return (this.type === 'all' || this.type === type) && name.toLowerCase().includes(this.q.toLowerCase());
+                 source: '',
+                 deadline: 'all',
+                 matchOnly: false,
+                 shown(card) {
+                     if (this.type !== 'all' && this.type !== card.type) return false;
+                     if (this.source !== '' && this.source !== card.source) return false;
+                     if (this.deadline !== 'all' && card.days > Number(this.deadline)) return false;
+                     if (this.matchOnly && card.state !== 'eligible') return false;
+                     return card.name.toLowerCase().includes(this.q.toLowerCase());
                  },
+                 get visible() { return this.cards.filter(card => this.shown(card)).length; },
+                 reset() { this.q = ''; this.type = 'all'; this.source = ''; this.deadline = 'all'; this.matchOnly = false; },
              }">
             <div class="flex flex-wrap items-end justify-between gap-6">
                 <div class="max-w-2xl" data-reveal>
@@ -121,17 +147,59 @@
                     Saat ini belum ada program beasiswa yang dibuka. Silakan cek kembali nanti.
                 </div>
             @else
+                @if ($hiddenCount === 0)
                 <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div class="inline-flex rounded-xl bg-slate-200/70 p-1 text-sm font-medium">
-                        <button type="button" @click="type = 'all'" :class="type === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Semua</button>
-                        <button type="button" @click="type = 'need_based'" :class="type === 'need_based' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Berbasis kebutuhan</button>
-                        <button type="button" @click="type = 'merit_based'" :class="type === 'merit_based' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Berbasis prestasi</button>
+                        <div class="inline-flex rounded-xl bg-slate-200/70 p-1 text-sm font-medium">
+                            <button type="button" @click="type = 'all'" :class="type === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Semua</button>
+                            <button type="button" @click="type = 'need_based'" :class="type === 'need_based' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Berbasis kebutuhan</button>
+                            <button type="button" @click="type = 'merit_based'" :class="type === 'merit_based' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'" class="rounded-lg px-4 py-2 transition">Berbasis prestasi</button>
+                        </div>
+                        <div class="relative sm:w-72">
+                            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z" /></svg>
+                            <input type="search" x-model="q" placeholder="Cari nama beasiswa" class="w-full rounded-xl border-slate-300 bg-white py-2.5 pl-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        </div>
                     </div>
-                    <div class="relative sm:w-72">
-                        <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M17 10.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z" /></svg>
-                        <input type="search" x-model="q" placeholder="Cari nama beasiswa" class="w-full rounded-xl border-slate-300 bg-white py-2.5 pl-9 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+    
+                    <div class="mt-4 flex flex-wrap items-center gap-3">
+                        <select x-model="source" aria-label="Sumber dana" class="rounded-xl border-slate-300 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="">Semua sumber dana</option>
+                            @foreach ($sources as $source)
+                                <option value="{{ $source }}">{{ $source }}</option>
+                            @endforeach
+                        </select>
+    
+                        <select x-model="deadline" aria-label="Tenggat" class="rounded-xl border-slate-300 bg-white py-2 pl-3 pr-9 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="all">Semua tenggat</option>
+                            <option value="7">Ditutup dalam 7 hari</option>
+                            <option value="30">Ditutup dalam 30 hari</option>
+                            <option value="60">Ditutup dalam 60 hari</option>
+                        </select>
+    
+                        @if ($isStudent)
+                            <button type="button" @click="matchOnly = ! matchOnly"
+                                    :class="matchOnly ? 'bg-emerald-600 text-white ring-emerald-600' : 'bg-white text-slate-700 ring-slate-300 hover:bg-slate-50'"
+                                    class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium shadow-sm ring-1 ring-inset transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                Cocok untuk saya ({{ $eligibleCount }})
+                            </button>
+                        @endif
+    
+                        <button type="button" x-show="q || type !== 'all' || source || deadline !== 'all' || matchOnly" x-cloak @click="reset()" class="text-sm font-medium text-indigo-700 hover:text-indigo-600">
+                            Atur ulang
+                        </button>
                     </div>
-                </div>
+                @endif
+
+                @if ($isStudent)
+                    <p class="mt-4 text-sm text-slate-600">
+                        <span class="font-semibold text-slate-900">{{ $eligibleCount }} dari {{ $programs->count() }}</span>
+                        beasiswa cocok dengan biodata Anda.
+                        @if ($matches->where('state', 'incomplete')->isNotEmpty())
+                            <a href="{{ route('student.biodata.edit') }}" class="font-medium text-indigo-700 hover:underline">Lengkapi biodata</a>
+                            agar penilaian lebih akurat.
+                        @endif
+                    </p>
+                @endif
 
                 <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($programs as $program)
@@ -139,7 +207,7 @@
                             $isNeedBased = $program->type->value === 'need_based';
                             $days = $daysLeft($program);
                         @endphp
-                        <article data-reveal style="--d: {{ ($loop->index % 3) * 120 }}ms" x-show="shown(@js($program->name), '{{ $program->type->value }}')"
+                        <article data-reveal style="--d: {{ ($loop->index % 3) * 120 }}ms" x-show="shown(cards[{{ $loop->index }}])"
                                  class="spotlight group flex flex-col overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
                             <div class="relative h-40 overflow-hidden" style="background: {{ $program->coverGradient() }}">
                                 <img src="{{ $program->coverImage() }}" alt="" loading="lazy" onerror="this.remove()"
@@ -148,6 +216,15 @@
                                 <span class="absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold {{ $isNeedBased ? 'bg-indigo-600 text-white' : 'bg-amber-400 text-slate-900' }}">
                                     {{ $program->type->label() }}
                                 </span>
+                                @if ($match = $matches[$program->id] ?? null)
+                                    <span class="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold shadow-sm {{ $badgeStyles[$match['state']] }}"
+                                          title="{{ collect($match['checks'])->pluck('text')->implode(' ') }}">
+                                        @if ($match['state'] === 'eligible')
+                                            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                        @endif
+                                        {{ $match['label'] }}
+                                    </span>
+                                @endif
                                 <span class="absolute bottom-3 right-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold {{ $days <= 7 ? 'text-red-600' : 'text-slate-700' }}">
                                     {{ $deadlineText($program) }}
                                 </span>
@@ -183,6 +260,22 @@
                             </div>
                         </article>
                     @endforeach
+
+                    @if ($hiddenCount > 0)
+                        <a href="{{ route('register') }}" data-reveal style="--d: {{ ($programs->count() % 3) * 120 }}ms"
+                           class="group relative flex min-h-[22rem] flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-800 p-8 text-center shadow-soft ring-1 ring-slate-900/5 transition hover:-translate-y-1 hover:shadow-xl">
+                            <div class="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-sky-400/20 blur-3xl" aria-hidden="true"></div>
+                            <p class="relative font-display text-2xl font-bold text-white">Lihat Lebih Banyak</p>
+                            <span class="relative mt-6 flex h-14 w-14 items-center justify-center rounded-full bg-amber-400 text-slate-900 transition duration-300 group-hover:translate-x-1 group-hover:bg-amber-300">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                            </span>
+                        </a>
+                    @endif
+                </div>
+
+                <div x-show="visible === 0" x-cloak class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+                    Tidak ada beasiswa yang sesuai dengan pilihan Anda.
+                    <button type="button" @click="reset()" class="font-medium text-indigo-700 hover:underline">Atur ulang filter</button>
                 </div>
             @endif
         </div>

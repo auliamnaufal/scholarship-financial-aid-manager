@@ -14,6 +14,40 @@ class Program extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /** The photo for each scholarship name the seed data uses. */
+    private const COVERS = [
+        // Need-based
+        'Beasiswa Peduli Pendidikan' => 'photo-1532629345422-7515f3d16bb6', // coins in open hands
+        'Beasiswa Harapan Bangsa' => 'photo-1522202176988-66273c2fd55f', // students smiling at a laptop
+        'Beasiswa Pelita Ilmu' => 'photo-1456513080510-7bf3a84b82f8', // open book
+        'Beasiswa Bakti Negeri' => 'photo-1469571486292-0ba58a3f068b', // hands joined in a heart
+        'Beasiswa Kemandirian Belajar' => 'photo-1488190211105-8b0e65b80b4e', // studying alone at a desk
+        'Beasiswa Cita Bangsa' => 'photo-1529156069898-49953e39b3ac', // friends side by side
+        'Beasiswa Sinar Pendidikan' => 'photo-1524178232363-1fb2b075b655', // lecture room
+        'Beasiswa Alumni Peduli' => 'photo-1521791136064-7986c2920216', // handshake
+        'Beasiswa Talenta Daerah' => 'photo-1543269865-cbf427effbad', // friends studying together
+        'Beasiswa Pendidikan Tinggi Mandiri' => 'photo-1562774053-701939374585', // campus building
+        'Beasiswa Bangun Negeri' => 'photo-1579621970563-ebec7560ff3e', // seedling growing from coins
+        'Beasiswa Mitra Pendidikan' => 'photo-1519389950473-47ba0277781c', // team around a table
+        'Beasiswa Cahaya Ilmu' => 'photo-1427504494785-3a9ca7044f45', // student walking through a library
+        'Beasiswa Langkah Awal' => 'photo-1503023345310-bd7c1de61c7d', // walking through a field
+        // Merit-based
+        'Beasiswa Prestasi Akademik' => 'photo-1523580846011-d3a5bc25702b', // graduation cap
+        'Beasiswa Unggulan Mahasiswa' => 'photo-1606761568499-6d2451b23c66', // lecture hall
+        'Beasiswa Garuda Muda' => 'photo-1571260899304-425eee4c7efc', // students heading to class
+        'Beasiswa Generasi Emas' => 'photo-1541339907198-e08756dedf3f', // graduates throwing caps
+        'Beasiswa Mahasiswa Berprestasi' => 'photo-1627556704302-624286467c65', // cap held up
+        'Beasiswa Pemimpin Muda' => 'photo-1475721027785-f74eccf877e2', // microphone and audience
+        'Beasiswa Cendekia Nusantara' => 'photo-1532012197267-da84d127e765', // book floating in a library
+        'Beasiswa Inovasi dan Riset' => 'photo-1532094349884-543bc11b234d', // laboratory glassware
+        'Beasiswa Studi Lanjut' => 'photo-1481627834876-b7833e8f5570', // bookshelves
+        'Beasiswa Prestasi Olahraga dan Seni' => 'photo-1461896836934-ffe607ba8211', // sprinter on the blocks
+        'Beasiswa Bintang Akademik' => 'photo-1509869175650-a1d97972541a', // chalkboard equation
+        'Beasiswa Duta Kampus' => 'photo-1523240795612-9a054b0db644', // students laughing in a library
+        'Beasiswa Juara Nusantara' => 'photo-1517649763962-0c623066013b', // cycling race
+        'Beasiswa Puncak Prestasi' => 'photo-1454496522488-7a8e488e8606', // mountain peak
+    ];
+
     protected $fillable = [
         'name',
         'type',
@@ -78,25 +112,34 @@ class Program extends Model
     }
 
     /**
-     * A stock cover for the programme. There is no image column, so one is
-     * drawn from a fixed pool by id: the same programme always gets the same
-     * picture, and the pool wraps once there are more programmes than covers.
+     * A photo that fits the scholarship. Each name the seed data uses has a
+     * picture chosen for it; any other name falls back to a pool for its type,
+     * picked by the name so a programme keeps the same picture every time.
+     * There is no image column, so nothing is stored.
      */
     public function coverImage(): string
     {
-        $covers = [
-            'photo-1523050854058-8df90110c9f1', // graduation caps
-            'photo-1541339907198-e08756dedf3f', // lecture hall
-            'photo-1562774053-701939374585',    // campus building
-            'photo-1522202176988-66273c2fd55f', // students working together
-            'photo-1498243691581-b145c3f54a5a', // library shelves
-            'photo-1532012197267-da84d127e765', // stacked books
-            'photo-1543269865-cbf427effbad',    // study group at a table
+        $fallbacks = [
+            ProgramType::NeedBased->value => [
+                'photo-1522202176988-66273c2fd55f', // students at a laptop
+                'photo-1543269865-cbf427effbad', // friends studying together
+                'photo-1469571486292-0ba58a3f068b', // hands together
+                'photo-1524178232363-1fb2b075b655', // lecture room
+                'photo-1427504494785-3a9ca7044f45', // student in a library
+            ],
+            ProgramType::MeritBased->value => [
+                'photo-1541339907198-e08756dedf3f', // graduates
+                'photo-1523580846011-d3a5bc25702b', // graduation cap
+                'photo-1606761568499-6d2451b23c66', // lecture hall
+                'photo-1532012197267-da84d127e765', // library
+                'photo-1481627834876-b7833e8f5570', // bookshelves
+            ],
         ];
 
-        $cover = $covers[($this->id ?? 0) % count($covers)];
+        $pool = $fallbacks[$this->type?->value ?? ProgramType::NeedBased->value];
+        $photo = self::COVERS[$this->name] ?? $pool[crc32((string) $this->name) % count($pool)];
 
-        return "https://images.unsplash.com/{$cover}?auto=format&fit=crop&w=1400&q=70";
+        return "https://images.unsplash.com/{$photo}?auto=format&fit=crop&w=1400&q=70";
     }
 
     /**

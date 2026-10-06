@@ -22,6 +22,10 @@ class ProgramFactory extends Factory
         'Beasiswa Alumni Peduli',
         'Beasiswa Talenta Daerah',
         'Beasiswa Pendidikan Tinggi Mandiri',
+        'Beasiswa Bangun Negeri',
+        'Beasiswa Mitra Pendidikan',
+        'Beasiswa Cahaya Ilmu',
+        'Beasiswa Langkah Awal',
     ];
 
     private const MERIT_NAMES = [
@@ -35,6 +39,10 @@ class ProgramFactory extends Factory
         'Beasiswa Inovasi dan Riset',
         'Beasiswa Studi Lanjut',
         'Beasiswa Prestasi Olahraga dan Seni',
+        'Beasiswa Bintang Akademik',
+        'Beasiswa Duta Kampus',
+        'Beasiswa Juara Nusantara',
+        'Beasiswa Puncak Prestasi',
     ];
 
     private const NEED_DESCRIPTIONS = [
@@ -54,7 +62,7 @@ class ProgramFactory extends Factory
         $type = fake()->randomElement(ProgramType::cases());
 
         return [
-            'name' => fake()->unique()->randomElement($type === ProgramType::NeedBased ? self::NEED_NAMES : self::MERIT_NAMES),
+            'name' => fake()->randomElement($type === ProgramType::NeedBased ? self::NEED_NAMES : self::MERIT_NAMES),
             'type' => $type,
             'funding_source' => fake()->randomElement(['Dana Abadi Universitas', 'Hibah Pemerintah', 'Dana Alumni', 'Sponsor Perusahaan']),
             'budget' => fake()->numberBetween(2, 20) * 25000000,

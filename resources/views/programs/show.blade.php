@@ -105,6 +105,38 @@
                     </div>
                 </dl>
 
+                @if ($match)
+                    @php
+                        $matchStyles = [
+                            'eligible' => ['bg-emerald-50 ring-emerald-200', 'text-emerald-800'],
+                            'ineligible' => ['bg-slate-50 ring-slate-200', 'text-slate-800'],
+                            'incomplete' => ['bg-amber-50 ring-amber-200', 'text-amber-900'],
+                            'applied' => ['bg-indigo-50 ring-indigo-200', 'text-indigo-900'],
+                        ][$match['state']];
+                    @endphp
+                    <div class="mt-6 rounded-xl p-4 ring-1 ring-inset {{ $matchStyles[0] }}">
+                        <p class="flex items-center gap-2 text-sm font-semibold {{ $matchStyles[1] }}">
+                            @if ($match['state'] === 'eligible')
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            @endif
+                            {{ $match['label'] }}
+                        </p>
+                        <ul class="mt-2 space-y-1.5 text-sm text-slate-700">
+                            @foreach ($match['checks'] as $check)
+                                <li class="flex gap-2">
+                                    <span class="mt-0.5 shrink-0 {{ $check['ok'] === true ? 'text-emerald-600' : ($check['ok'] === false ? 'text-red-600' : 'text-amber-600') }}">
+                                        {{ $check['ok'] === true ? '✓' : ($check['ok'] === false ? '✗' : '•') }}
+                                    </span>
+                                    {{ $check['text'] }}
+                                </li>
+                            @endforeach
+                        </ul>
+                        @if ($match['state'] === 'incomplete')
+                            <a href="{{ route('student.biodata.edit') }}" class="mt-3 inline-block text-sm font-medium text-indigo-700 hover:underline">Lengkapi biodata</a>
+                        @endif
+                    </div>
+                @endif
+
                 @if ($program->isOpen())
                     <a href="{{ route('student.applications.create', $program) }}" class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-700 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-600">
                         {{ __('Apply now') }}
