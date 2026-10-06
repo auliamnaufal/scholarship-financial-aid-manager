@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Coordinator;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Support\ApplyRules;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -48,6 +49,10 @@ class ApplicationController extends Controller
     public function approve(Request $request, Application $application): RedirectResponse
     {
         $this->authorize('decide', $application);
+
+        if ($conflict = ApplyRules::approvalConflict($application)) {
+            return back()->withErrors(['awarded_amount' => $conflict]);
+        }
 
         $validated = $request->validate([
             // What the student is promised. Disbursements are then checked

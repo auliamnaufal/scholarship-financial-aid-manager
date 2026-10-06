@@ -21,11 +21,14 @@ class Eligibility
 
     public const APPLIED = 'applied';
 
+    /** The biodata fits, but the application rules (ApplyRules) stand in the way. */
+    public const BLOCKED = 'blocked';
+
     /**
      * @return array{state: string, label: string, checks: list<array{ok: ?bool, text: string}>}
      *               `ok` is null for a check that cannot be made yet.
      */
-    public static function check(Program $program, ?StudentProfile $profile, bool $alreadyApplied = false): array
+    public static function check(Program $program, ?StudentProfile $profile, bool $alreadyApplied = false, ?string $blockedReason = null): array
     {
         $checks = [];
 
@@ -60,8 +63,13 @@ class Eligibility
             $alreadyApplied => self::APPLIED,
             collect($checks)->contains(fn ($check) => $check['ok'] === null) => self::INCOMPLETE,
             collect($checks)->contains(fn ($check) => $check['ok'] === false) => self::INELIGIBLE,
+            $blockedReason !== null => self::BLOCKED,
             default => self::ELIGIBLE,
         };
+
+        if ($blockedReason !== null && ! $alreadyApplied) {
+            $checks[] = ['ok' => false, 'text' => $blockedReason];
+        }
 
         return [
             'state' => $state,
@@ -77,6 +85,7 @@ class Eligibility
             self::INELIGIBLE => 'Belum memenuhi syarat',
             self::INCOMPLETE => 'Lengkapi biodata',
             self::APPLIED => 'Sudah Anda daftar',
+            self::BLOCKED => 'Belum bisa mendaftar',
         };
     }
 

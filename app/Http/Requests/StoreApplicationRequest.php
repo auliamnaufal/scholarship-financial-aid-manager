@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\RequirementKind;
 use App\Models\Application;
 use App\Models\Program;
+use App\Support\ApplyRules;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -81,6 +82,10 @@ class StoreApplicationRequest extends FormRequest
 
             if ($duplicate) {
                 $validator->errors()->add('semester', __('You have already applied to this program for this semester.'));
+            }
+
+            if ($reason = ApplyRules::for($this->user())->blockedReasonFor($program)) {
+                $validator->errors()->add('program_id', $reason);
             }
 
             $this->checkEligibility($validator, $program);

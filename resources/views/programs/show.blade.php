@@ -98,6 +98,12 @@
                         <dd class="text-right font-semibold text-slate-900">{{ $program->funding_source }}</dd>
                     </div>
                     <div class="flex justify-between gap-3">
+                        <dt class="text-slate-500">Beasiswa lain</dt>
+                        <dd class="text-right font-semibold {{ $program->allows_other_scholarships ? 'text-slate-900' : 'text-amber-700' }}">
+                            {{ $program->allows_other_scholarships ? 'Boleh diterima bersamaan' : 'Tidak boleh bersamaan' }}
+                        </dd>
+                    </div>
+                    <div class="flex justify-between gap-3">
                         <dt class="text-slate-500">{{ $isNeedBased ? __('Max family income') : __('Minimum GPA') }}</dt>
                         <dd class="text-right font-semibold text-slate-900">
                             {{ $isNeedBased ? \App\Support\Money::rupiah($program->max_family_income) : number_format((float) $program->min_gpa, 2, ',', '.') }}
@@ -112,6 +118,7 @@
                             'ineligible' => ['bg-slate-50 ring-slate-200', 'text-slate-800'],
                             'incomplete' => ['bg-amber-50 ring-amber-200', 'text-amber-900'],
                             'applied' => ['bg-indigo-50 ring-indigo-200', 'text-indigo-900'],
+                            'blocked' => ['bg-amber-50 ring-amber-200', 'text-amber-900'],
                         ][$match['state']];
                     @endphp
                     <div class="mt-6 rounded-xl p-4 ring-1 ring-inset {{ $matchStyles[0] }}">

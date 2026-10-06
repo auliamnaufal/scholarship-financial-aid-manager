@@ -56,6 +56,7 @@ class Program extends Model
         'application_deadline',
         'max_family_income',
         'min_gpa',
+        'allows_other_scholarships',
         'coordinator_id',
         'description',
     ];
@@ -68,6 +69,7 @@ class Program extends Model
             'budget' => 'decimal:2',
             'max_family_income' => 'decimal:2',
             'min_gpa' => 'decimal:2',
+            'allows_other_scholarships' => 'boolean',
         ];
     }
 

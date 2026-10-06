@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\ApplicationStatus;
 use App\Models\Program;
 use App\Models\User;
+use App\Support\ApplyRules;
 use App\Support\Eligibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -45,12 +46,15 @@ class ProgramController extends Controller
 
         $student = $this->student($request);
 
+        $rules = $student ? ApplyRules::for($student) : null;
+
         $matches = $student
             ? $programs->mapWithKeys(fn (Program $program) => [
                 $program->id => Eligibility::check(
                     $program,
                     $student->studentProfile,
                     $this->hasApplied($student, $program),
+                    $rules->blockedReasonFor($program),
                 ),
             ])
             : collect();
@@ -67,7 +71,12 @@ class ProgramController extends Controller
         $student = $this->student($request);
 
         $match = $student
-            ? Eligibility::check($program, $student->studentProfile, $this->hasApplied($student, $program))
+            ? Eligibility::check(
+                $program,
+                $student->studentProfile,
+                $this->hasApplied($student, $program),
+                ApplyRules::for($student)->blockedReasonFor($program),
+            )
             : null;
 
         return view('programs.show', compact('program', 'match'));

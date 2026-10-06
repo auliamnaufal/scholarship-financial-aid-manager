@@ -49,6 +49,19 @@
     </div>
 
     <div class="mt-4">
+        <input type="hidden" name="allows_other_scholarships" value="0">
+        <label class="flex items-start gap-3">
+            <input type="checkbox" name="allows_other_scholarships" value="1" @checked(old('allows_other_scholarships', $program?->allows_other_scholarships ?? false))
+                   class="mt-1 rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+            <span>
+                <span class="block text-sm font-medium text-slate-900">{{ __('Recipients may receive other scholarships') }}</span>
+                <span class="block text-sm text-slate-500">{{ __('If unticked, someone who receives this scholarship cannot receive another one, and a student who already receives another scholarship cannot receive this one.') }}</span>
+            </span>
+        </label>
+        <x-input-error :messages="$errors->get('allows_other_scholarships')" class="mt-2" />
+    </div>
+
+    <div class="mt-4">
         <x-input-label for="description" :value="__('Description')" />
         <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm">{{ old('description', $program?->description) }}</textarea>
         <x-input-error :messages="$errors->get('description')" class="mt-2" />

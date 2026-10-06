@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\RequirementKind;
 use App\Models\Application;
 use App\Models\Program;
 use App\Models\RequirementType;
@@ -54,7 +55,7 @@ class ApplicationDocumentsTest extends TestCase
         return $program->load('requirements.requirementType');
     }
 
-    public function test_applying_stores_uploads_and_written_answers(): void
+    public function test_applying_stores_every_upload_including_the_essay(): void
     {
         Storage::fake('local');
 
@@ -69,7 +70,7 @@ class ApplicationDocumentsTest extends TestCase
             'semester' => '2026-1',
             'answers' => [
                 $cvId => UploadedFile::fake()->create('cv.pdf', 200, 'application/pdf'),
-                $essayId => 'I am applying because I want to finish my degree without debt.',
+                $essayId => UploadedFile::fake()->create('essay.docx', 300, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
             ],
         ])->assertSessionHasNoErrors();
 
@@ -81,8 +82,81 @@ class ApplicationDocumentsTest extends TestCase
         Storage::disk('local')->assertExists($cv->file_path);
 
         $essay = $application->documents->firstWhere('requirement_type_id', $essayId);
-        $this->assertNull($essay->file_path);
-        $this->assertStringContainsString('finish my degree', $essay->body);
+        $this->assertSame('essay.docx', $essay->original_name);
+        $this->assertNull($essay->body);
+        Storage::disk('local')->assertExists($essay->file_path);
+    }
+
+    public function test_the_essay_is_an_upload_not_a_typed_answer(): void
+    {
+        $this->seed(RequirementTypeSeeder::class);
+
+        $this->assertTrue(RequirementType::where('slug', 'essay')->firstOrFail()->isFile());
+    }
+
+    public function test_the_migration_turns_an_existing_typed_essay_into_an_upload(): void
+    {
+        $this->seed(RequirementTypeSeeder::class);
+
+        // A database from before the change: the essay is still a typed answer.
+        RequirementType::where('slug', 'essay')->update(['kind' => 'text']);
+        $this->assertFalse(RequirementType::where('slug', 'essay')->firstOrFail()->isFile());
+
+        (require base_path('database/migrations/2026_10_06_100002_make_essay_requirement_a_file_upload.php'))->up();
+
+        $this->assertTrue(RequirementType::where('slug', 'essay')->firstOrFail()->isFile());
+    }
+
+    public function test_an_essay_must_be_a_pdf_or_word_document(): void
+    {
+        $student = $this->student();
+        $program = $this->programAskingFor(['essay' => true]);
+        $essayId = RequirementType::where('slug', 'essay')->value('id');
+
+        $this->actingAs($student)->post('/student/applications', [
+            'program_id' => $program->id,
+            'semester' => '2026-1',
+            'answers' => [$essayId => UploadedFile::fake()->create('essay.txt', 10, 'text/plain')],
+        ])->assertSessionHasErrors("answers.{$essayId}");
+
+        $this->assertSame(0, Application::count());
+    }
+
+    public function test_an_essay_over_five_megabytes_is_refused(): void
+    {
+        $student = $this->student();
+        $program = $this->programAskingFor(['essay' => true]);
+        $essayId = RequirementType::where('slug', 'essay')->value('id');
+
+        $this->actingAs($student)->post('/student/applications', [
+            'program_id' => $program->id,
+            'semester' => '2026-1',
+            'answers' => [$essayId => UploadedFile::fake()->create('essay.pdf', 6000, 'application/pdf')],
+        ])->assertSessionHasErrors("answers.{$essayId}");
+    }
+
+    public function test_a_written_answer_requirement_still_works_when_a_scholarship_wants_one(): void
+    {
+        $student = $this->student();
+        $program = $this->programAskingFor([]);
+
+        $statement = RequirementType::create([
+            'slug' => 'statement',
+            'name' => 'Pernyataan singkat',
+            'kind' => RequirementKind::Text,
+            'description' => 'Tulis langsung di formulir.',
+        ]);
+        $program->requirements()->create(['requirement_type_id' => $statement->id, 'is_required' => true]);
+
+        $this->actingAs($student)->post('/student/applications', [
+            'program_id' => $program->id,
+            'semester' => '2026-1',
+            'answers' => [$statement->id => 'Saya ingin menyelesaikan kuliah tanpa terbebani biaya.'],
+        ])->assertSessionHasNoErrors();
+
+        $document = Application::firstOrFail()->documents->first();
+        $this->assertNull($document->file_path);
+        $this->assertStringContainsString('tanpa terbebani biaya', $document->body);
     }
 
     public function test_a_compulsory_requirement_cannot_be_skipped(): void

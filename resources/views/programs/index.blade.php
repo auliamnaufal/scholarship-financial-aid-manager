@@ -18,6 +18,7 @@
             'ineligible' => 'bg-slate-800/80 text-slate-100',
             'incomplete' => 'bg-amber-400 text-slate-900',
             'applied' => 'bg-indigo-600 text-white',
+            'blocked' => 'bg-slate-800/80 text-slate-100',
         ];
         $cards = $programs->map(fn ($program) => [
             'name' => $program->name,
@@ -250,6 +251,10 @@
                                     <div class="flex justify-between gap-3">
                                         <dt class="text-slate-500">Berkas diminta</dt>
                                         <dd class="font-medium text-slate-900">{{ $program->requirements_count }} berkas</dd>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
+                                        <dt class="text-slate-500">Beasiswa lain</dt>
+                                        <dd class="font-medium {{ $program->allows_other_scholarships ? 'text-slate-900' : 'text-amber-700' }}">{{ $program->allows_other_scholarships ? 'Boleh bersamaan' : 'Tidak boleh bersamaan' }}</dd>
                                     </div>
                                 </dl>
 

@@ -9,6 +9,7 @@ use App\Http\Requests\StoreApplicationRequest;
 use App\Models\Application;
 use App\Models\Program;
 use App\Models\ProgramRequirement;
+use App\Support\ApplyRules;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +28,7 @@ class ApplicationController extends Controller
         return view('student.applications.create', [
             'program' => $program,
             'profile' => Auth::user()->studentProfile,
+            'blockedReason' => ApplyRules::for(Auth::user())->blockedReasonFor($program),
         ]);
     }
 

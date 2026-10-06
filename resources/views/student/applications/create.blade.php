@@ -38,6 +38,10 @@
                     @endif
                 </div>
 
+                @if ($blockedReason)
+                    <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{{ $blockedReason }}</div>
+                @endif
+
                 <x-input-error :messages="$errors->get('program_id')" class="mt-4" />
 
                 <form method="POST" action="{{ route('student.applications.store') }}" enctype="multipart/form-data" class="mt-6">
@@ -115,7 +119,7 @@
 
                     <div class="flex items-center justify-end mt-8 gap-3">
                         <a href="{{ route('scholarships.show', $program) }}" class="text-slate-600 hover:underline">{{ __('Cancel') }}</a>
-                        <x-primary-button>{{ __('Submit Application') }}</x-primary-button>
+                        <x-primary-button :disabled="(bool) $blockedReason">{{ __('Submit Application') }}</x-primary-button>
                     </div>
                 </form>
             </x-card>

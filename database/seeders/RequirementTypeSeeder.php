@@ -36,8 +36,8 @@ class RequirementTypeSeeder extends Seeder
             [
                 'slug' => 'essay',
                 'name' => 'Esai / pernyataan pribadi',
-                'kind' => RequirementKind::Text,
-                'description' => 'Alasan Anda mendaftar dan rencana Anda menggunakan beasiswa ini.',
+                'kind' => RequirementKind::File,
+                'description' => 'Unggah esai Anda berisi alasan mendaftar dan rencana menggunakan beasiswa ini.',
             ],
             [
                 'slug' => 'achievement-certificate',

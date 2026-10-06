@@ -69,6 +69,7 @@ class ProgramFactory extends Factory
             'application_deadline' => fake()->dateTimeBetween('+2 weeks', '+3 months'),
             'max_family_income' => $type === ProgramType::NeedBased ? fake()->randomElement([3000000, 3500000, 4000000, 4500000, 5000000]) : null,
             'min_gpa' => $type === ProgramType::MeritBased ? fake()->randomElement([3.00, 3.25, 3.50, 3.75]) : null,
+            'allows_other_scholarships' => fake()->boolean(25),
             'coordinator_id' => User::factory(),
             'description' => fake()->randomElement($type === ProgramType::NeedBased ? self::NEED_DESCRIPTIONS : self::MERIT_DESCRIPTIONS),
         ];

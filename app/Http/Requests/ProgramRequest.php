@@ -34,6 +34,7 @@ class ProgramRequest extends FormRequest
                 Rule::requiredIf($this->input('type') === ProgramType::MeritBased->value),
                 'nullable', 'numeric', 'min:0', 'max:4',
             ],
+            'allows_other_scholarships' => ['sometimes', 'boolean'],
             'description' => ['nullable', 'string', 'max:5000'],
 
             // The checklist an applicant will have to satisfy. Absent means

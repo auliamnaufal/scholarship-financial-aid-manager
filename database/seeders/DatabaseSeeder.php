@@ -11,6 +11,7 @@ use App\Models\RequirementType;
 use App\Models\Review;
 use App\Models\StudentProfile;
 use App\Models\User;
+use App\Support\ApplyRules;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
@@ -29,15 +30,10 @@ class DatabaseSeeder extends Seeder
     private const PROGRAM_COUNT = 12;
 
     /**
-     * Isi esai contoh untuk persyaratan bertipe teks.
+     * Most scholarships do not let their recipients take another one, but the
+     * demo should show both sides of that rule, so at least this many do.
      */
-    private const ESSAY_PARAGRAPHS = [
-        'Saya mendaftar beasiswa ini karena ingin terus melanjutkan pendidikan tanpa membebani orang tua. Penghasilan keluarga kami pas-pasan sehingga bantuan ini akan sangat berarti bagi kelancaran studi saya.',
-        'Selama kuliah saya berusaha menjaga nilai akademik dan aktif dalam kegiatan organisasi kampus. Pengalaman tersebut mengajarkan saya tentang kerja sama, tanggung jawab, dan pengelolaan waktu.',
-        'Jika terpilih, dana beasiswa akan saya gunakan untuk membayar uang kuliah, membeli buku dan kebutuhan penelitian, serta menunjang biaya hidup selama masa studi.',
-        'Cita-cita saya adalah menjadi tenaga profesional yang bermanfaat bagi masyarakat di daerah asal saya. Saya berkomitmen menyelesaikan kuliah tepat waktu dan membagikan ilmu yang saya peroleh.',
-        'Saya percaya pendidikan adalah kunci untuk memperbaiki masa depan keluarga. Karena itu saya akan memanfaatkan kesempatan ini sebaik-baiknya dan menjaga amanah yang diberikan.',
-    ];
+    private const MIN_ALLOWING_OTHERS = 3;
 
     public function run(): void
     {
@@ -104,6 +100,16 @@ class DatabaseSeeder extends Seeder
             ]));
         }
 
+        $missing = self::MIN_ALLOWING_OTHERS - $programs->filter(fn (Program $program) => $program->allows_other_scholarships)->count();
+
+        if ($missing > 0) {
+            $exclusive = $programs->reject(fn (Program $program) => $program->allows_other_scholarships)->values()->all();
+
+            foreach (fake()->randomElements($exclusive, $missing) as $program) {
+                $program->update(['allows_other_scholarships' => true]);
+            }
+        }
+
         // 4b. Requirements per programme. Deliberately uneven: only some
         // scholarships want a recommendation letter, which is the whole point
         // of keeping requirements in their own table.
@@ -159,6 +165,31 @@ class DatabaseSeeder extends Seeder
             ]));
         }
 
+        // 5a. The seed data obeys the same rules as the app: at most two
+        // applications waiting at once, and no awards that exclude each other.
+        // Whatever would break a rule is turned into a rejection.
+        foreach ($applications->groupBy('student_id') as $studentApplications) {
+            $open = 0;
+            $held = collect();
+
+            foreach ($studentApplications as $application) {
+                $program = $programs->firstWhere('id', $application->program_id);
+
+                if ($application->status->isOpen() && ++$open > ApplyRules::MAX_OPEN) {
+                    $application->update(['status' => ApplicationStatus::Rejected]);
+                } elseif ($application->status === ApplicationStatus::Approved) {
+                    $excludes = ! $program->allows_other_scholarships
+                        || $held->contains(fn ($other) => ! $programs->firstWhere('id', $other->program_id)->allows_other_scholarships);
+
+                    if ($held->isNotEmpty() && $excludes) {
+                        $application->update(['status' => ApplicationStatus::Rejected]);
+                    } else {
+                        $held->push($application);
+                    }
+                }
+            }
+        }
+
         // 5b. What each applicant supplied. Text answers get real prose; file
         // requirements get a one-page placeholder PDF written to the private
         // disk, so the reviewer's checklist and its download links behave in
@@ -187,7 +218,7 @@ class DatabaseSeeder extends Seeder
                 if ($type->kind === RequirementKind::Text) {
                     $application->documents()->create([
                         'requirement_type_id' => $type->id,
-                        'body' => implode("\n\n", fake()->randomElements(self::ESSAY_PARAGRAPHS, 2)),
+                        'body' => fake()->paragraphs(2, true),
                     ]);
 
                     continue;
@@ -220,6 +251,10 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // Every coordinator is a reviewer too, so they review as well, just not
+        // on the scholarships they run themselves.
+        $reviewerPool = $reviewers->concat($dedicatedCoordinators)->unique('id')->values();
+
         // 6. Reviews for under_review / approved / rejected applications.
         foreach ($applications as $application) {
             // Nothing to review on an application still waiting to be claimed,
@@ -235,7 +270,9 @@ class DatabaseSeeder extends Seeder
             };
 
             Review::factory()->create([
-                'reviewer_id' => $reviewers->random()->id,
+                'reviewer_id' => $reviewerPool
+                    ->reject(fn (User $user) => $user->id === $programs->firstWhere('id', $application->program_id)->coordinator_id)
+                    ->random()->id,
                 'application_id' => $application->id,
                 'score' => $score,
             ]);

@@ -1,4 +1,5 @@
 {
+    "A moderator is always a reviewer too.": "Moderator otomatis juga menjadi reviewer.",
     "A new verification link has been sent to the email address you provided during registration.": "Tautan verifikasi baru telah dikirim ke alamat email yang Anda berikan saat pendaftaran.",
     "A new verification link has been sent to your email address.": "Tautan verifikasi baru telah dikirim ke alamat email Anda.",
     "Academic details": "Data akademik",
@@ -112,6 +113,7 @@
     "Funding Source": "Sumber Dana",
     "Go to page :page": "Ke halaman :page",
     "GPA": "IPK",
+    "If unticked, someone who receives this scholarship cannot receive another one, and a student who already receives another scholarship cannot receive this one.": "Jika tidak dicentang, penerima beasiswa ini tidak boleh menerima beasiswa lain, dan mahasiswa yang sudah menerima beasiswa lain tidak dapat menerimanya.",
     "Instructions for applicants (optional)": "Petunjuk untuk pendaftar (opsional)",
     "Log in": "Masuk",
     "Log in to manage your scholarship applications.": "Masuk untuk mengelola pendaftaran beasiswa Anda.",
@@ -184,6 +186,7 @@
     "Programs": "Program",
     "Programs You Manage": "Program yang Anda Kelola",
     "Programs you manage": "Program yang Anda kelola",
+    "Recipients may receive other scholarships": "Penerima boleh menerima beasiswa lain",
     "Record Disbursement": "Catat Pencairan",
     "Register": "Daftar",
     "Reject": "Tolak",
