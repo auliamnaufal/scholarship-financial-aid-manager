@@ -253,6 +253,10 @@
                                         <dd class="font-medium text-slate-900">{{ $program->requirements_count }} berkas</dd>
                                     </div>
                                     <div class="flex justify-between gap-3">
+                                        <dt class="text-slate-500">Per penerima</dt>
+                                        <dd class="text-right font-medium text-slate-900">{{ \App\Support\Money::rupiah($program->awardPerRecipient()) }} <span class="text-slate-500">&middot; {{ $program->quota }} orang</span></dd>
+                                    </div>
+                                    <div class="flex justify-between gap-3">
                                         <dt class="text-slate-500">Beasiswa lain</dt>
                                         <dd class="font-medium {{ $program->allows_other_scholarships ? 'text-slate-900' : 'text-amber-700' }}">{{ $program->allows_other_scholarships ? 'Boleh bersamaan' : 'Tidak boleh bersamaan' }}</dd>
                                     </div>

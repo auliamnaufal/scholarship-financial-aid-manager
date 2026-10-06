@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\ApplicationStatus;
+use App\Enums\ProgramPhase;
 use App\Enums\ProgramType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 
 class Program extends Model
 {
@@ -53,7 +57,10 @@ class Program extends Model
         'type',
         'funding_source',
         'budget',
+        'quota',
         'application_deadline',
+        'review_deadline',
+        'announcement_date',
         'max_family_income',
         'min_gpa',
         'allows_other_scholarships',
@@ -66,6 +73,9 @@ class Program extends Model
         return [
             'type' => ProgramType::class,
             'application_deadline' => 'date',
+            'review_deadline' => 'date',
+            'announcement_date' => 'date',
+            'quota' => 'integer',
             'budget' => 'decimal:2',
             'max_family_income' => 'decimal:2',
             'min_gpa' => 'decimal:2',
@@ -161,5 +171,51 @@ class Program extends Model
     public function isOpen(): bool
     {
         return $this->application_deadline->isFuture() || $this->application_deadline->isToday();
+    }
+
+    /** The last day of review. A missing or earlier date means review ends with registration. */
+    public function reviewEnds(): Carbon
+    {
+        return Carbon::instance(max($this->review_deadline ?? $this->application_deadline, $this->application_deadline));
+    }
+
+    /** The day recipients are announced. It never falls before review ends. */
+    public function announcementDate(): Carbon
+    {
+        return Carbon::instance(max($this->announcement_date ?? $this->reviewEnds(), $this->reviewEnds()));
+    }
+
+    /** Where the scholarship is on its timeline today. */
+    public function phase(): ProgramPhase
+    {
+        $today = Date::today();
+
+        return match (true) {
+            $today->lte($this->application_deadline) => ProgramPhase::Registration,
+            $today->lte($this->reviewEnds()) => ProgramPhase::Review,
+            $today->lte($this->announcementDate()) => ProgramPhase::Acceptance,
+            default => ProgramPhase::Completed,
+        };
+    }
+
+    /**
+     * What each recipient receives. The budget is meant for `quota` people and
+     * everyone gets the same share, rounded down to a whole rupiah.
+     */
+    public function awardPerRecipient(): float
+    {
+        return floor((float) $this->budget / max(1, (int) $this->quota));
+    }
+
+    /** People already approved for this scholarship. */
+    public function recipientsCount(): int
+    {
+        return $this->applications()->where('status', ApplicationStatus::Approved->value)->count();
+    }
+
+    /** Places still free. Never reported below zero. */
+    public function slotsLeft(): int
+    {
+        return max(0, (int) $this->quota - $this->recipientsCount());
     }
 }

@@ -171,8 +171,8 @@ class ApplyRulesTest extends TestCase
         Review::factory()->create(['application_id' => $application->id]);
 
         $this->actingAs($coordinator)
-            ->post("/coordinator/applications/{$application->id}/approve", ['awarded_amount' => '1000000'])
-            ->assertSessionHasErrors('awarded_amount');
+            ->post("/coordinator/applications/{$application->id}/approve")
+            ->assertSessionHasErrors('approval');
 
         $this->assertSame(ApplicationStatus::UnderReview, $application->refresh()->status);
     }
@@ -188,7 +188,7 @@ class ApplyRulesTest extends TestCase
         Review::factory()->create(['application_id' => $application->id]);
 
         $this->actingAs($coordinator)
-            ->post("/coordinator/applications/{$application->id}/approve", ['awarded_amount' => '1000000'])
+            ->post("/coordinator/applications/{$application->id}/approve")
             ->assertSessionHasNoErrors();
 
         $this->assertSame(ApplicationStatus::Approved, $application->refresh()->status);
@@ -206,7 +206,10 @@ class ApplyRulesTest extends TestCase
             'type' => 'merit_based',
             'funding_source' => 'Dana Alumni',
             'budget' => '100000000',
+            'quota' => '10',
             'application_deadline' => now()->addMonth()->toDateString(),
+            'review_deadline' => now()->addMonths(2)->toDateString(),
+            'announcement_date' => now()->addMonths(2)->addWeek()->toDateString(),
             'min_gpa' => '3.25',
             'allows_other_scholarships' => '0',
         ])->assertRedirect('/coordinator/programs');
@@ -260,7 +263,10 @@ class ApplyRulesTest extends TestCase
             'type' => 'merit_based',
             'funding_source' => $program->funding_source,
             'budget' => '100000000',
+            'quota' => '10',
             'application_deadline' => now()->addMonth()->toDateString(),
+            'review_deadline' => now()->addMonths(2)->toDateString(),
+            'announcement_date' => now()->addMonths(2)->addWeek()->toDateString(),
             'min_gpa' => '3.25',
             'allows_other_scholarships' => '0',
         ])->assertRedirect('/coordinator/programs');

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\ProgramType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Program>
@@ -61,12 +62,19 @@ class ProgramFactory extends Factory
     {
         $type = fake()->randomElement(ProgramType::cases());
 
+        // The budget is a whole number of shares, one for each recipient.
+        $quota = fake()->numberBetween(5, 25);
+        $deadline = Carbon::instance(fake()->dateTimeBetween('+2 weeks', '+3 months'))->startOfDay();
+
         return [
             'name' => fake()->randomElement($type === ProgramType::NeedBased ? self::NEED_NAMES : self::MERIT_NAMES),
             'type' => $type,
             'funding_source' => fake()->randomElement(['Dana Abadi Universitas', 'Hibah Pemerintah', 'Dana Alumni', 'Sponsor Perusahaan']),
-            'budget' => fake()->numberBetween(2, 20) * 25000000,
-            'application_deadline' => fake()->dateTimeBetween('+2 weeks', '+3 months'),
+            'budget' => $quota * fake()->randomElement([3000000, 4000000, 5000000, 6000000, 7500000, 10000000]),
+            'quota' => $quota,
+            'application_deadline' => $deadline,
+            'review_deadline' => $deadline->copy()->addDays(14),
+            'announcement_date' => $deadline->copy()->addDays(21),
             'max_family_income' => $type === ProgramType::NeedBased ? fake()->randomElement([3000000, 3500000, 4000000, 4500000, 5000000]) : null,
             'min_gpa' => $type === ProgramType::MeritBased ? fake()->randomElement([3.00, 3.25, 3.50, 3.75]) : null,
             'allows_other_scholarships' => fake()->boolean(25),

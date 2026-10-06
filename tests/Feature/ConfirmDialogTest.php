@@ -80,7 +80,7 @@ class ConfirmDialogTest extends TestCase
             ->get(route('coordinator.applications.show', $application))
             ->assertOk()
             ->assertSee('data-confirm-title="Setujui pendaftaran ini?"', false)
-            ->assertSee('Rp {awarded_amount}', false)
+            ->assertSee('sama seperti setiap penerima beasiswa ini')
             ->assertSee('data-confirm-tone="success"', false)
             ->assertSee('data-confirm-title="Tolak pendaftaran ini?"', false)
             ->assertSee('data-confirm-tone="danger"', false);

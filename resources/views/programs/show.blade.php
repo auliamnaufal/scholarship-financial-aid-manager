@@ -30,6 +30,49 @@
                 </p>
             </section>
 
+            @php
+                $steps = [
+                    ['title' => 'Pendaftaran', 'note' => 'Mahasiswa mengajukan berkas hingga', 'date' => $program->application_deadline],
+                    ['title' => 'Review', 'note' => 'Reviewer menilai berkas hingga', 'date' => $program->reviewEnds()],
+                    ['title' => 'Penerimaan', 'note' => 'Penerima beasiswa diumumkan pada', 'date' => $program->announcementDate()],
+                ];
+                $current = ['registration' => 0, 'review' => 1, 'acceptance' => 2, 'completed' => 3][$program->phase()->value];
+            @endphp
+
+            <section class="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-900/5 sm:p-8">
+                <h2 class="font-display text-xl font-bold text-slate-900">Jadwal</h2>
+                <ol class="mt-5">
+                    @foreach ($steps as $i => $step)
+                        @php
+                            $done = $current > $i;
+                            $active = $current === $i;
+                        @endphp
+                        <li class="relative flex gap-4 pb-6 last:pb-0">
+                            @unless ($loop->last)
+                                <span class="absolute left-4 top-9 -ml-px h-full w-0.5 {{ $done ? 'bg-indigo-600' : 'bg-slate-200' }}" aria-hidden="true"></span>
+                            @endunless
+                            <span class="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold
+                                {{ $done ? 'bg-indigo-600 text-white' : ($active ? 'bg-white text-indigo-700 ring-2 ring-indigo-600' : 'bg-slate-100 text-slate-400') }}">
+                                @if ($done)
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                                @else
+                                    {{ $i + 1 }}
+                                @endif
+                            </span>
+                            <div class="pt-0.5">
+                                <p class="font-semibold {{ $active ? 'text-indigo-700' : 'text-slate-900' }}">
+                                    {{ $step['title'] }}
+                                    @if ($active)
+                                        <span class="ml-2 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-700">Sedang berjalan</span>
+                                    @endif
+                                </p>
+                                <p class="text-sm text-slate-500">{{ $step['note'] }} {{ $step['date']->translatedFormat('d F Y') }}</p>
+                            </div>
+                        </li>
+                    @endforeach
+                </ol>
+            </section>
+
             <section class="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-900/5 sm:p-8">
                 <h2 class="font-display text-xl font-bold text-slate-900">Persyaratan peserta</h2>
                 <ul class="mt-4 space-y-3 text-sm text-slate-700">
@@ -92,6 +135,14 @@
                     <div class="flex justify-between gap-3">
                         <dt class="text-slate-500">{{ __('Total funding') }}</dt>
                         <dd class="font-semibold text-slate-900">{{ \App\Support\Money::rupiah($program->budget) }}</dd>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <dt class="text-slate-500">Kuota penerima</dt>
+                        <dd class="font-semibold text-slate-900">{{ $program->quota }} orang</dd>
+                    </div>
+                    <div class="flex justify-between gap-3">
+                        <dt class="text-slate-500">Per penerima</dt>
+                        <dd class="font-semibold text-slate-900">{{ \App\Support\Money::rupiah($program->awardPerRecipient()) }}</dd>
                     </div>
                     <div class="flex justify-between gap-3">
                         <dt class="text-slate-500">{{ __('Funded by') }}</dt>

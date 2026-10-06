@@ -27,8 +27,9 @@
                             <thead>
                                 <tr>
                                     <th class="px-3 py-2">{{ __('Program') }}</th>
-                                    <th class="px-3 py-2">{{ __('Deadline') }}</th>
+                                    <th class="px-3 py-2">{{ __('Stage') }}</th>
                                     <th class="px-3 py-2">{{ __('Applications') }}</th>
+                                    <th class="px-3 py-2">{{ __('Recipients') }}</th>
                                     <th class="px-3 py-2">{{ __('Budget') }}</th>
                                     <th class="px-3 py-2">{{ __('Still to disburse') }}</th>
                                     <th class="px-3 py-2">{{ __('Requirements') }}</th>
@@ -46,8 +47,12 @@
                                             @endif
                                             <span class="block text-xs text-slate-500">{{ $program->type->label() }} · {{ $program->funding_source }}</span>
                                         </td>
-                                        <td class="px-3 py-3 whitespace-nowrap">{{ $program->application_deadline->translatedFormat('d M Y') }}</td>
+                                        <td class="px-3 py-3 whitespace-nowrap">
+                                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $program->phase()->badgeClasses() }}">{{ $program->phase()->label() }}</span>
+                                            <span class="block text-xs text-slate-500">{{ $program->application_deadline->translatedFormat('d M Y') }}</span>
+                                        </td>
                                         <td class="px-3 py-3">{{ $program->applications_count }}</td>
+                                        <td class="px-3 py-3 whitespace-nowrap">{{ $program->recipientsCount() }} / {{ $program->quota }}</td>
                                         <td class="px-3 py-3 whitespace-nowrap">{{ \App\Support\Money::rupiah($program->budget) }}</td>
                                         <td class="px-3 py-3 whitespace-nowrap font-medium text-slate-900">{{ \App\Support\Money::rupiah($program->remainingBudget()) }}</td>
                                         <td class="px-3 py-3">{{ $program->requirements()->count() }}</td>

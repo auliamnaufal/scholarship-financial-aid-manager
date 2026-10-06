@@ -25,7 +25,10 @@ class ProgramRequest extends FormRequest
             'type' => ['required', new Enum(ProgramType::class)],
             'funding_source' => ['required', 'string', 'max:255'],
             'budget' => ['required', 'numeric', 'min:0'],
+            'quota' => ['required', 'integer', 'min:1', 'max:100000'],
             'application_deadline' => ['required', 'date'],
+            'review_deadline' => ['required', 'date', 'after:application_deadline'],
+            'announcement_date' => ['required', 'date', 'after_or_equal:review_deadline'],
             'max_family_income' => [
                 Rule::requiredIf($this->input('type') === ProgramType::NeedBased->value),
                 'nullable', 'numeric', 'min:0',

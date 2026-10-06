@@ -2,7 +2,11 @@
     $program = $program ?? null;
 @endphp
 
-<div x-data="{ type: '{{ old('type', $program?->type?->value ?? 'need_based') }}' }">
+<div x-data="{
+        type: '{{ old('type', $program?->type?->value ?? 'need_based') }}',
+        budget: Number('{{ old('budget', $program?->budget ?? 0) }}') || 0,
+        quota: Number('{{ old('quota', $program?->quota ?? 10) }}') || 0,
+    }">
     <div>
         <x-input-label for="name" :value="__('Program Name')" />
         <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $program?->name)" required autofocus />
@@ -26,14 +30,37 @@
 
     <div class="mt-4">
         <x-input-label for="budget" :value="__('Budget')" />
-        <x-text-input id="budget" name="budget" type="number" step="0.01" min="0" class="mt-1 block w-full" :value="old('budget', $program?->budget)" required />
+        <x-text-input id="budget" name="budget" type="number" x-model.number="budget" step="0.01" min="0" class="mt-1 block w-full" :value="old('budget', $program?->budget)" required />
         <x-input-error :messages="$errors->get('budget')" class="mt-2" />
+    </div>
+
+    <div class="mt-4">
+        <x-input-label for="quota" :value="__('Number of recipients')" />
+        <x-text-input id="quota" name="quota" type="number" min="1" step="1" x-model.number="quota" class="mt-1 block w-full" :value="old('quota', $program?->quota ?? 10)" required />
+        <p class="mt-1 text-sm text-slate-500">
+            {{ __('The budget is shared equally: each recipient receives') }}
+            <span class="font-semibold text-slate-900" x-text="quota > 0 ? 'Rp ' + Math.floor(budget / quota).toLocaleString('id-ID') : '-'"></span>.
+        </p>
+        <x-input-error :messages="$errors->get('quota')" class="mt-2" />
     </div>
 
     <div class="mt-4">
         <x-input-label for="application_deadline" :value="__('Application Deadline')" />
         <x-text-input id="application_deadline" name="application_deadline" type="date" class="mt-1 block w-full" :value="old('application_deadline', $program?->application_deadline?->format('Y-m-d'))" required />
         <x-input-error :messages="$errors->get('application_deadline')" class="mt-2" />
+    </div>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <div>
+            <x-input-label for="review_deadline" :value="__('Review ends')" />
+            <x-text-input id="review_deadline" name="review_deadline" type="date" class="mt-1 block w-full" :value="old('review_deadline', $program?->review_deadline?->format('Y-m-d'))" required />
+            <x-input-error :messages="$errors->get('review_deadline')" class="mt-2" />
+        </div>
+        <div>
+            <x-input-label for="announcement_date" :value="__('Recipients announced')" />
+            <x-text-input id="announcement_date" name="announcement_date" type="date" class="mt-1 block w-full" :value="old('announcement_date', $program?->announcement_date?->format('Y-m-d'))" required />
+            <x-input-error :messages="$errors->get('announcement_date')" class="mt-2" />
+        </div>
     </div>
 
     <div class="mt-4" x-show="type === 'need_based'">

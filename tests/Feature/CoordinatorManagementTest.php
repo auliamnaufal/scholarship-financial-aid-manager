@@ -31,7 +31,10 @@ class CoordinatorManagementTest extends TestCase
             'type' => 'merit_based',
             'funding_source' => 'Alumni Fund',
             'budget' => '50000',
+            'quota' => '10',
             'application_deadline' => now()->addMonth()->format('Y-m-d'),
+            'review_deadline' => now()->addMonths(2)->format('Y-m-d'),
+            'announcement_date' => now()->addMonths(2)->addWeek()->format('Y-m-d'),
             'min_gpa' => '3.00',
             'description' => 'A scholarship for testing.',
         ], $overrides);

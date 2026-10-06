@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Coordinator;
 use App\Enums\ApplicationStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
+use App\Models\Program;
 use App\Support\ApplyRules;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ApplicationController extends Controller
@@ -46,29 +48,40 @@ class ApplicationController extends Controller
         return view('coordinator.applications.show', compact('application'));
     }
 
-    public function approve(Request $request, Application $application): RedirectResponse
+    /**
+     * Approves one application. What the student receives is not chosen here:
+     * every recipient of a scholarship gets the same share of its budget, and
+     * the scholarship can only have as many recipients as its quota.
+     */
+    public function approve(Application $application): RedirectResponse
     {
         $this->authorize('decide', $application);
 
         if ($conflict = ApplyRules::approvalConflict($application)) {
-            return back()->withErrors(['awarded_amount' => $conflict]);
+            return back()->withErrors(['approval' => $conflict]);
         }
 
-        $validated = $request->validate([
-            // What the student is promised. Disbursements are then checked
-            // against it, so the total paid can never exceed the award.
-            'awarded_amount' => [
-                'required', 'numeric', 'min:0.01',
-                'max:'.$application->program->remainingBudget(),
-            ],
-        ], [
-            'awarded_amount.max' => __('The program has only :max left in its budget.'),
-        ]);
+        $approved = DB::transaction(function () use ($application) {
+            // Locked, so two coordinators approving at once cannot overfill the quota.
+            $program = Program::query()->lockForUpdate()->findOrFail($application->program_id);
 
-        $application->update([
-            'status' => ApplicationStatus::Approved,
-            'awarded_amount' => $validated['awarded_amount'],
-        ]);
+            if ($program->slotsLeft() <= 0) {
+                return false;
+            }
+
+            $application->update([
+                'status' => ApplicationStatus::Approved,
+                'awarded_amount' => (string) $program->awardPerRecipient(),
+            ]);
+
+            return true;
+        });
+
+        if (! $approved) {
+            return back()->withErrors([
+                'approval' => __('This scholarship already has all :quota recipients it was meant for.', ['quota' => $application->program->quota]),
+            ]);
+        }
 
         return redirect()
             ->route('coordinator.applications.show', $application)

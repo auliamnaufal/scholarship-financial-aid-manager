@@ -46,29 +46,41 @@
                 </dl>
 
                 @can('decide', $application)
-                    @php $budgetLeft = $application->program->remainingBudget(); @endphp
+                    @php
+                        $program = $application->program;
+                        $perRecipient = $program->awardPerRecipient();
+                        $slotsLeft = $program->slotsLeft();
+                    @endphp
 
                     <div class="mt-6 border-t border-slate-200 pt-6">
-                        <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}" class="flex flex-wrap items-end gap-3"
-                            data-confirm-title="{{ __('Approve this application?') }}"
-                            data-confirm-message="{{ __('The student will be awarded Rp {awarded_amount}. This decision cannot be changed.') }}"
-                            data-confirm-label="{{ __('Yes, approve') }}"
-                            data-confirm-tone="success">
-                            @csrf
+                        <dl class="mb-4 grid grid-cols-2 gap-4 text-sm">
                             <div>
-                                <x-input-label for="awarded_amount" :value="__('Amount to award')" />
-                                <x-text-input id="awarded_amount" name="awarded_amount" type="number" step="0.01" min="0.01"
-                                    max="{{ $budgetLeft }}" class="mt-1 block w-48" :value="old('awarded_amount')" required />
-                                <p class="mt-1 text-xs text-slate-500">
-                                    {{ __('Budget left in this program:') }} {{ \App\Support\Money::rupiah($budgetLeft) }}
-                                </p>
+                                <dt class="text-slate-500">{{ __('Per recipient') }}</dt>
+                                <dd class="font-medium text-slate-900">{{ \App\Support\Money::rupiah($perRecipient) }}</dd>
                             </div>
-                            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm transition hover:bg-emerald-500 text-sm font-medium">{{ __('Approve') }}</button>
-                        </form>
+                            <div>
+                                <dt class="text-slate-500">{{ __('Recipients so far') }}</dt>
+                                <dd class="font-medium text-slate-900">{{ $program->recipientsCount() }} / {{ $program->quota }}</dd>
+                            </div>
+                        </dl>
 
-                        <x-input-error :messages="$errors->get('awarded_amount')" class="mt-2" />
+                        @if ($slotsLeft <= 0)
+                            <p class="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                                {{ __('This scholarship already has all :quota recipients it was meant for.', ['quota' => $program->quota]) }}
+                            </p>
+                        @endif
 
-                        <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}" class="mt-4"
+                        <div class="flex flex-wrap items-center gap-3">
+                            <form method="POST" action="{{ route('coordinator.applications.approve', $application) }}"
+                                data-confirm-title="{{ __('Approve this application?') }}"
+                                data-confirm-message="{{ __('The student will receive Rp :amount, the same as every recipient of this scholarship. This decision cannot be changed.', ['amount' => number_format($perRecipient, 0, ',', '.')]) }}"
+                                data-confirm-label="{{ __('Yes, approve') }}"
+                                data-confirm-tone="success">
+                                @csrf
+                                <button type="submit" @disabled($slotsLeft <= 0) class="px-4 py-2 bg-emerald-600 text-white rounded-lg shadow-sm transition hover:bg-emerald-500 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50">{{ __('Approve') }}</button>
+                            </form>
+
+                            <form method="POST" action="{{ route('coordinator.applications.reject', $application) }}" 
                             data-confirm-title="{{ __('Reject this application?') }}"
                             data-confirm-message="{{ __('The application will be marked as rejected. This decision cannot be changed.') }}"
                             data-confirm-label="{{ __('Yes, reject') }}"
@@ -76,6 +88,9 @@
                             @csrf
                             <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg shadow-sm transition hover:bg-red-500 text-sm font-medium">{{ __('Reject') }}</button>
                         </form>
+                        </div>
+
+                        <x-input-error :messages="$errors->get('approval')" class="mt-3" />
                     </div>
                 @elseif ($application->status->value === 'under_review' && $application->reviews->isEmpty())
                     <p class="text-sm text-slate-500 mt-6">{{ __('At least one review is required before this application can be approved or rejected.') }}</p>

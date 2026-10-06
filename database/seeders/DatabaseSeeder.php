@@ -305,18 +305,11 @@ class DatabaseSeeder extends Seeder
         }
 
         // 7. Awards and disbursements for approved applications. Each award is
-        // paid in instalments and left part-paid, and the running total below
-        // keeps the awards within the programme's budget.
-        $budgetLeft = $programs->mapWithKeys(fn (Program $program) => [$program->id => (float) $program->budget]);
-
+        // paid in instalments and left part-paid.
         foreach ($applications->where('status', ApplicationStatus::Approved) as $application) {
-            $award = (float) min(fake()->numberBetween(8, 24) * 500000, $budgetLeft[$application->program_id]);
+            // Every recipient gets the same share of the programme's budget.
+            $award = $programs->firstWhere('id', $application->program_id)->awardPerRecipient();
 
-            if ($award <= 0) {
-                continue;
-            }
-
-            $budgetLeft[$application->program_id] -= $award;
             // Decimal columns are given strings: brick/math, behind the
             // `decimal:2` cast, deprecates being handed floats.
             $application->update(['awarded_amount' => (string) $award]);
