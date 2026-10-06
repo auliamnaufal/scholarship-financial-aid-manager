@@ -4,6 +4,7 @@ use App\Http\Controllers\Coordinator\ApplicationController as CoordinatorApplica
 use App\Http\Controllers\Coordinator\DashboardController as CoordinatorDashboardController;
 use App\Http\Controllers\Coordinator\DisbursementController;
 use App\Http\Controllers\Coordinator\ProgramController as CoordinatorProgramController;
+use App\Http\Controllers\Coordinator\RequirementTypeController;
 use App\Http\Controllers\Coordinator\StudentController as CoordinatorStudentController;
 use App\Http\Controllers\Coordinator\UserController as CoordinatorUserController;
 use App\Http\Controllers\ApplicationDocumentController;
@@ -90,6 +91,12 @@ Route::middleware(['auth', 'verified', 'role:coordinator'])
         Route::get('/applications/{application}/disbursements/{disbursement}/edit', [DisbursementController::class, 'edit'])->scopeBindings()->name('disbursements.edit');
         Route::put('/applications/{application}/disbursements/{disbursement}', [DisbursementController::class, 'update'])->scopeBindings()->name('disbursements.update');
         Route::delete('/applications/{application}/disbursements/{disbursement}', [DisbursementController::class, 'destroy'])->scopeBindings()->name('disbursements.destroy');
+        Route::get('/requirement-types', [RequirementTypeController::class, 'index'])->name('requirement-types.index');
+        Route::get('/requirement-types/create', [RequirementTypeController::class, 'create'])->name('requirement-types.create');
+        Route::post('/requirement-types', [RequirementTypeController::class, 'store'])->name('requirement-types.store');
+        Route::get('/requirement-types/{requirement_type}/edit', [RequirementTypeController::class, 'edit'])->name('requirement-types.edit');
+        Route::put('/requirement-types/{requirement_type}', [RequirementTypeController::class, 'update'])->name('requirement-types.update');
+        Route::delete('/requirement-types/{requirement_type}', [RequirementTypeController::class, 'destroy'])->name('requirement-types.destroy');
         Route::get('/users', [CoordinatorUserController::class, 'index'])->name('users.index');
         Route::get('/users/create', [CoordinatorUserController::class, 'create'])->name('users.create');
         Route::post('/users', [CoordinatorUserController::class, 'store'])->name('users.store');

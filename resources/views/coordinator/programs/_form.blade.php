@@ -107,6 +107,10 @@
             {{ __('Tick what applicants must send in. Only the items you tick appear on their application form, so a scholarship that needs no recommendation letter simply does not ask for one.') }}
         </p>
 
+        <p class="mt-2 text-sm">
+            <a href="{{ route('coordinator.requirement-types.index') }}" class="font-medium text-indigo-700 hover:underline">{{ __('Manage requirement types') }}</a>
+        </p>
+
         <div class="mt-4 space-y-3">
             @foreach ($requirementTypes as $type)
                 @php

@@ -106,6 +106,13 @@
                     </svg>
                     {{ __('Students') }}
                 </x-nav-link>
+                <x-nav-link :href="route('coordinator.requirement-types.index')" :active="request()->routeIs('coordinator.requirement-types.*')">
+                    <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                        <rect x="5" y="3" width="14" height="18" rx="2" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.5 9 1.5 1.5L13 7.5M8.5 15.5h7" />
+                    </svg>
+                    {{ __('Requirement Types') }}
+                </x-nav-link>
                 <x-nav-link :href="route('coordinator.users.index')" :active="request()->routeIs('coordinator.users.*')">
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                         <circle cx="9" cy="8" r="3" />
