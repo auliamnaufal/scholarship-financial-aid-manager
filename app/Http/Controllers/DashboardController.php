@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $isCoordinator = $user->hasRole('coordinator');
-        $isReviewer = $user->hasRole('reviewer');
+        $isReviewer = $user->isReviewer();
         $isStudent = $user->hasRole('student');
 
         if ($isCoordinator && $isReviewer) {

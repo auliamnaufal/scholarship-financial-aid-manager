@@ -41,6 +41,11 @@
                                                 {{ $role->name === 'coordinator' ? 'Moderator' : ucfirst($role->name) }}
                                             </span>
                                         @endforeach
+                                        @if ($user->hasRole('coordinator') && ! $user->hasRole('reviewer'))
+                                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ring-1 ring-inset ring-black/5 bg-slate-100 text-slate-600" title="{{ __('A moderator is always a reviewer too.') }}">
+                                                Reviewer
+                                            </span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

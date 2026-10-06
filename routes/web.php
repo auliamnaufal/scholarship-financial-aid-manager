@@ -49,7 +49,7 @@ Route::middleware(['auth', 'verified', 'role:student'])
         Route::post('/applications/{application}/cancel', [StudentApplicationController::class, 'cancel'])->name('applications.cancel');
     });
 
-Route::middleware(['auth', 'verified', 'role:reviewer'])
+Route::middleware(['auth', 'verified', 'role:reviewer|coordinator'])
     ->prefix('reviewer')
     ->name('reviewer.')
     ->group(function () {

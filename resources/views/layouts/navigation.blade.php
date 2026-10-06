@@ -72,7 +72,7 @@
                 </x-nav-link>
             @endrole
 
-            @role('reviewer')
+            @if (Auth::user()->isReviewer())
                 <x-nav-link :href="route('reviewer.dashboard')" :active="request()->routeIs('reviewer.dashboard', 'reviewer.applications.*')">
                     <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
                         <circle cx="12" cy="12" r="9" />
@@ -80,7 +80,7 @@
                     </svg>
                     {{ __('Review Applications') }}
                 </x-nav-link>
-            @endrole
+            @endif
 
             @role('coordinator')
                 <p class="px-3 pb-1 pt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">{{ __('Moderator') }}</p>

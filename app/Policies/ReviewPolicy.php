@@ -11,7 +11,10 @@ class ReviewPolicy
 {
     public function create(User $user, Application $application): bool
     {
-        return $user->hasRole('reviewer')
+        // A coordinator decides on their own scholarships, so they may not also
+        // score them; they review everyone else's.
+        return $user->isReviewer()
+            && $application->program->coordinator_id !== $user->id
             && $application->status === ApplicationStatus::UnderReview
             && ! $application->reviews()->where('reviewer_id', $user->id)->exists();
     }

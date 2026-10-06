@@ -18,7 +18,7 @@ class ApplicationPolicy
             return true;
         }
 
-        if ($user->hasRole('reviewer')) {
+        if ($user->isReviewer()) {
             // Reviewers can see every submission across every scholarship;
             // only claiming (see ApplicationPolicy::claim) and submitting a
             // review are further restricted.
@@ -52,8 +52,10 @@ class ApplicationPolicy
 
     public function claim(User $user, Application $application): bool
     {
-        return $user->hasRole('reviewer')
-            && $application->status === ApplicationStatus::Submitted;
+        // A coordinator reviews other people's scholarships, not their own.
+        return $user->isReviewer()
+            && $application->status === ApplicationStatus::Submitted
+            && $application->program->coordinator_id !== $user->id;
     }
 
     public function decide(User $user, Application $application): bool

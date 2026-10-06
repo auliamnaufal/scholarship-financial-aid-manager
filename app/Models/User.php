@@ -74,4 +74,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class, 'reviewer_id');
     }
+
+    /**
+     * Every coordinator is a reviewer; a reviewer is not necessarily a
+     * coordinator. The coordinator role carries the reviewer's abilities by
+     * itself, so no account can be a coordinator and forget to be a reviewer.
+     */
+    public function isReviewer(): bool
+    {
+        return $this->hasAnyRole(['reviewer', 'coordinator']);
+    }
 }

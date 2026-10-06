@@ -12,14 +12,20 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        // A coordinator cannot review their own scholarships, so those do not
+        // show up as work to pick up.
+        $notMine = fn ($query) => $query->where('coordinator_id', '!=', Auth::id());
+
         $claimable = Application::query()
             ->where('status', ApplicationStatus::Submitted)
+            ->whereHas('program', $notMine)
             ->with(['student', 'program'])
             ->latest('submission_date')
             ->get();
 
         $awaitingMyReview = Application::query()
             ->where('status', ApplicationStatus::UnderReview)
+            ->whereHas('program', $notMine)
             ->whereDoesntHave('reviews', function ($query) {
                 $query->where('reviewer_id', Auth::id());
             })

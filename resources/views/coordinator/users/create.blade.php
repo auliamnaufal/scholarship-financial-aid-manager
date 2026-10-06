@@ -44,6 +44,7 @@
                             <input type="checkbox" name="roles[]" value="coordinator" class="rounded border-slate-300 text-indigo-600 shadow-sm" {{ in_array('coordinator', old('roles', [])) ? 'checked' : '' }}>
                             <span class="ms-2">{{ __('Moderator') }}</span>
                         </label>
+                        <p class="mt-2 text-sm text-slate-500">{{ __('A moderator is always a reviewer too.') }}</p>
                         <x-input-error :messages="$errors->get('roles')" class="mt-2" />
                     </div>
 
