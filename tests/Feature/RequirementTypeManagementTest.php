@@ -354,7 +354,7 @@ class RequirementTypeManagementTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$type->id => UploadedFile::fake()->create('proposal.pdf', 200, 'application/pdf')],
         ])->assertSessionHasNoErrors();
 

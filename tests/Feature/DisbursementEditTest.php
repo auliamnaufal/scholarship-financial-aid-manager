@@ -60,7 +60,7 @@ class DisbursementEditTest extends TestCase
             'seq_no' => $seq,
             'amount' => $amount,
             'disbursement_date' => '2026-09-01',
-            'semester' => '2026-1',
+            'semester' => '5',
         ]);
     }
 
@@ -70,7 +70,7 @@ class DisbursementEditTest extends TestCase
             'seq_no' => 2,
             'amount' => '1000000',
             'disbursement_date' => '2026-09-15',
-            'semester' => '2026-1',
+            'semester' => '5',
         ], $overrides);
     }
 
@@ -190,7 +190,7 @@ class DisbursementEditTest extends TestCase
             'awarded_amount' => '5000000',
         ]);
         $stray = $elsewhere->disbursements()->create([
-            'seq_no' => 1, 'amount' => '1000000', 'disbursement_date' => '2026-09-01', 'semester' => '2026-1',
+            'seq_no' => 1, 'amount' => '1000000', 'disbursement_date' => '2026-09-01', 'semester' => '5',
         ]);
 
         $this->actingAs($this->coordinator)

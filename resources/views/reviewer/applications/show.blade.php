@@ -22,7 +22,7 @@
                     </div>
                     <div>
                         <dt class="text-slate-500">{{ __('Semester') }}</dt>
-                        <dd>{{ $application->semester }}</dd>
+                        <dd>{{ $application->semester_label }}</dd>
                     </div>
                     <div>
                         <dt class="text-slate-500">{{ __('Status') }}</dt>

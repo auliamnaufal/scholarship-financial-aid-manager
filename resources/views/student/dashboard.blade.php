@@ -37,7 +37,7 @@
                                 @foreach ($applications as $application)
                                     <tr>
                                         <td class="px-4 py-2">{{ $application->program->name }}</td>
-                                        <td class="px-4 py-2">{{ $application->semester }}</td>
+                                        <td class="px-4 py-2">{{ $application->semester_label }}</td>
                                         <td class="px-4 py-2">{{ $application->submission_date->format('Y-m-d') }}</td>
                                         <td class="px-4 py-2">
                                             <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ring-1 ring-inset ring-black/5 {{ $application->status->badgeClasses() }}">

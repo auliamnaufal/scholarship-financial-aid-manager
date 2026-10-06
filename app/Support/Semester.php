@@ -2,61 +2,65 @@
 
 namespace App\Support;
 
+use App\Models\StudentProfile;
+use Illuminate\Support\Carbon;
+
 /**
- * Semesters are stored as "2026-1" (odd semester starting in 2026) or
- * "2026-2" (even semester, early the following year). Forms offer a short
- * list to pick from, so the same semester is never typed two different ways
- * and the one-application-per-semester rule cannot be dodged by a typo.
+ * A semester is the student's own semester number, 1 to 7, stored as the
+ * plain number ("5") and shown as "Semester 5". Forms offer the numbers in a
+ * dropdown, so the same semester is never typed two different ways and the
+ * one-application-per-semester rule cannot be dodged by a typo.
  */
 class Semester
 {
-    /** What the database accepts: any year, odd or even. */
-    public const PATTERN = '/^20\d{2}-[12]$/';
+    /** The highest semester a form offers. */
+    public const MAX = 7;
+
+    /** What new records may hold. */
+    public const PATTERN = '/^[1-7]$/';
 
     /**
-     * @param  string|null  $include  A semester already on record, kept in the list
-     *                                even when it has fallen outside the window.
-     * @return array<string, string> value => label, from last year to next year.
+     * @param  string|null  $include  A value already on record, kept in the list
+     *                                even when it is not one of the numbers above.
+     * @return array<string, string> value => label
      */
-    public static function options(?int $year = null, ?string $include = null): array
+    public static function options(?string $include = null): array
     {
-        $year ??= (int) date('Y');
         $options = [];
 
-        for ($y = $year - 1; $y <= $year + 1; $y++) {
-            foreach ([1, 2] as $term) {
-                $options["{$y}-{$term}"] = self::label("{$y}-{$term}");
-            }
+        for ($n = 1; $n <= self::MAX; $n++) {
+            $options[(string) $n] = self::label((string) $n);
         }
 
-        if ($include && preg_match(self::PATTERN, $include)) {
+        if ($include !== null && $include !== '') {
             $options[$include] ??= self::label($include);
-            ksort($options);
         }
 
         return $options;
     }
 
-    /** "2026-1" becomes "2026-1 (Ganjil)". Anything unrecognised is returned as is. */
+    /** "5" becomes "Semester 5", also for a number from before the limit. Anything else is returned as is. */
     public static function label(string $value): string
     {
-        if (! preg_match(self::PATTERN, $value)) {
-            return $value;
-        }
-
-        return $value.' ('.(str_ends_with($value, '-1') ? __('Odd') : __('Even')).')';
+        return preg_match('/^\d{1,2}$/', $value) ? __('Semester').' '.$value : $value;
     }
 
-    /** The semester running today: odd from August, even from February. */
-    public static function current(): string
+    /**
+     * The semester a student is probably in now, counted from the year they
+     * enrolled: the odd semester starts in August, the even one in February.
+     * Used as the default choice on the apply form.
+     */
+    public static function forProfile(?StudentProfile $profile, ?Carbon $now = null): string
     {
-        $year = (int) date('Y');
-        $month = (int) date('n');
+        $now ??= now();
 
-        return match (true) {
-            $month >= 8 => "{$year}-1",
-            default => ($year - 1).'-2',
-        };
+        if (! $profile?->year_enrolled) {
+            return '1';
+        }
+
+        $semester = ($now->year - (int) $profile->year_enrolled) * 2 + ($now->month >= 8 ? 1 : 0);
+
+        return (string) max(1, min(self::MAX, $semester));
     }
 
     /** The validation both semester fields share. */

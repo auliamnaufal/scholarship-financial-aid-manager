@@ -124,7 +124,7 @@ class CoordinatorManagementTest extends TestCase
         $application = Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => 'submitted',
         ]);
@@ -234,7 +234,7 @@ class CoordinatorManagementTest extends TestCase
         $application = Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => 'approved',
             'awarded_amount' => '5000',
@@ -243,7 +243,7 @@ class CoordinatorManagementTest extends TestCase
             'seq_no' => 1,
             'amount' => '2500',
             'disbursement_date' => now(),
-            'semester' => '2026-1',
+            'semester' => '5',
         ]);
 
         $this->actingAs($coordinator)

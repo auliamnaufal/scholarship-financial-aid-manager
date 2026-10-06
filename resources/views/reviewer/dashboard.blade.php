@@ -42,7 +42,7 @@
                                 <tr>
                                     <td class="px-4 py-2">{{ $application->student->name }}</td>
                                     <td class="px-4 py-2">{{ $application->program->name }}</td>
-                                    <td class="px-4 py-2">{{ $application->semester }}</td>
+                                    <td class="px-4 py-2">{{ $application->semester_label }}</td>
                                     <td class="px-4 py-2">
                                         <form method="POST" action="{{ route('reviewer.applications.claim', $application) }}"
                                         data-confirm-title="{{ __('Claim this application?') }}"
@@ -81,7 +81,7 @@
                                 <tr>
                                     <td class="px-4 py-2">{{ $application->student->name }}</td>
                                     <td class="px-4 py-2">{{ $application->program->name }}</td>
-                                    <td class="px-4 py-2">{{ $application->semester }}</td>
+                                    <td class="px-4 py-2">{{ $application->semester_label }}</td>
                                     <td class="px-4 py-2">
                                         <a href="{{ route('reviewer.applications.show', $application) }}" class="text-indigo-600 hover:underline">
                                             {{ __('Review') }}
@@ -114,7 +114,7 @@
                                 <tr>
                                     <td class="px-4 py-2">{{ $application->student->name }}</td>
                                     <td class="px-4 py-2">{{ $application->program->name }}</td>
-                                    <td class="px-4 py-2">{{ $application->semester }}</td>
+                                    <td class="px-4 py-2">{{ $application->semester_label }}</td>
                                     <td class="px-4 py-2">
                                         <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ring-1 ring-inset ring-black/5 {{ $application->status->badgeClasses() }}">
                                             <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current"></span>{{ $application->status->label() }}

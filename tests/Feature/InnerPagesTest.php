@@ -9,6 +9,7 @@ use App\Models\Review;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Support\Semester;
+use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -40,40 +41,85 @@ class InnerPagesTest extends TestCase
 
     // ---------- semester ----------
 
-    public function test_semester_options_offer_both_terms_for_three_years(): void
+    public function test_semester_options_run_from_one_to_seven(): void
     {
-        $options = Semester::options(2026);
+        $options = Semester::options();
 
-        $this->assertSame(['2025-1', '2025-2', '2026-1', '2026-2', '2027-1', '2027-2'], array_keys($options));
-        $this->assertSame('2026-1 (Ganjil)', $options['2026-1']);
-        $this->assertSame('2026-2 (Genap)', $options['2026-2']);
+        $this->assertSame(range(1, 7), array_map('intval', array_keys($options)));
+        $this->assertSame('Semester 1', $options['1']);
+        $this->assertSame('Semester 7', $options['7']);
+        $this->assertSame('Semester 9', Semester::label('9'));
     }
 
     public function test_a_semester_on_record_stays_in_the_list(): void
     {
-        $this->assertArrayHasKey('2019-1', Semester::options(2026, '2019-1'));
+        $this->assertArrayHasKey('2019-1', Semester::options('2019-1'));
+        $this->assertSame('2019-1', Semester::options('2019-1')['2019-1']);
     }
 
-    public function test_the_apply_form_offers_a_semester_dropdown(): void
+    public function test_the_default_semester_follows_the_year_of_enrolment(): void
+    {
+        $profile = new StudentProfile(['year_enrolled' => 2024]);
+
+        // The odd semester starts in August, the even one in February.
+        $this->assertSame('5', Semester::forProfile($profile, Carbon::parse('2026-10-06')));
+        $this->assertSame('4', Semester::forProfile($profile, Carbon::parse('2026-03-10')));
+        $this->assertSame('1', Semester::forProfile($profile, Carbon::parse('2024-09-01')));
+        $this->assertSame('1', Semester::forProfile(null));
+        $this->assertSame('7', Semester::forProfile(new StudentProfile(['year_enrolled' => 2000]), Carbon::parse('2026-10-06')));
+    }
+
+    public function test_the_apply_form_offers_a_semester_dropdown_with_the_students_own_semester_chosen(): void
     {
         $program = Program::factory()->create();
+        $student = $this->student();
+        $student->studentProfile->update(['year_enrolled' => now()->year - 2]);
+        $expected = Semester::forProfile($student->studentProfile->fresh());
 
-        $this->actingAs($this->student())
+        $this->actingAs($student)
             ->get(route('student.applications.create', $program))
             ->assertOk()
             ->assertSee('<select id="semester"', false)
-            ->assertSee('2026-1 (Ganjil)');
+            ->assertSee('Semester 1')
+            ->assertSee('Semester 7')
+            ->assertSee('value="'.$expected.'" selected', false);
     }
 
-    public function test_a_free_text_semester_is_rejected(): void
+    public function test_a_semester_outside_the_list_is_rejected(): void
     {
         $program = Program::factory()->create(['application_deadline' => now()->addMonth()]);
 
-        foreach (['Ganjil 2026', '2026/1', '2026-3', '26-1', ''] as $typed) {
+        foreach (['Semester 5', '2026-1', '0', '8', '14', '5.5', ''] as $typed) {
             $this->actingAs($this->student())
                 ->post(route('student.applications.store'), ['program_id' => $program->id, 'semester' => $typed])
                 ->assertSessionHasErrors('semester');
         }
+    }
+
+    public function test_semesters_are_shown_as_semester_and_the_number(): void
+    {
+        $coordinator = $this->user('coordinator');
+        $program = Program::factory()->create(['coordinator_id' => $coordinator->id]);
+        Application::factory()->create(['program_id' => $program->id, 'semester' => '7']);
+
+        $this->actingAs($coordinator)->get(route('coordinator.applications.index'))
+            ->assertOk()
+            ->assertSee('Semester 7');
+    }
+
+    public function test_old_year_term_semesters_are_converted_to_numbers(): void
+    {
+        $student = $this->student();
+        $student->studentProfile->update(['year_enrolled' => 2024]);
+        $application = Application::factory()->create(['student_id' => $student->id, 'semester' => '2026-1']);
+        $second = Application::factory()->create(['student_id' => $student->id, 'semester' => '2026-2']);
+        $disbursement = $application->disbursements()->create(['seq_no' => 1, 'amount' => '1000', 'disbursement_date' => '2026-09-01', 'semester' => '2026-1']);
+
+        (require base_path('database/migrations/2026_10_06_100004_store_semesters_as_numbers.php'))->up();
+
+        $this->assertSame('5', $application->fresh()->semester);
+        $this->assertSame('6', $second->fresh()->semester);
+        $this->assertSame('5', $disbursement->fresh()->semester);
     }
 
     // ---------- guardian phones ----------
@@ -352,14 +398,14 @@ class InnerPagesTest extends TestCase
         $program = Program::factory()->create(['coordinator_id' => $coordinator->id]);
         $budi = $this->student(['name' => 'Budi Santoso']);
 
-        Application::factory()->create(['student_id' => $budi->id, 'program_id' => $program->id, 'status' => ApplicationStatus::Submitted, 'semester' => '2026-1']);
-        Application::factory()->create(['student_id' => $budi->id, 'program_id' => $program->id, 'status' => ApplicationStatus::Rejected, 'semester' => '2026-2']);
+        Application::factory()->create(['student_id' => $budi->id, 'program_id' => $program->id, 'status' => ApplicationStatus::Submitted, 'semester' => '5']);
+        Application::factory()->create(['student_id' => $budi->id, 'program_id' => $program->id, 'status' => ApplicationStatus::Rejected, 'semester' => '6']);
 
         $response = $this->actingAs($coordinator)->get(route('coordinator.applications.index', ['q' => 'Budi', 'status' => 'rejected']));
 
         $response->assertOk();
         $this->assertCount(1, $response->viewData('applications'));
-        $this->assertSame('2026-2', $response->viewData('applications')->first()->semester);
+        $this->assertSame('6', $response->viewData('applications')->first()->semester);
     }
 
     public function test_students_are_searchable_by_name_email_or_nim_and_filterable_by_archive(): void

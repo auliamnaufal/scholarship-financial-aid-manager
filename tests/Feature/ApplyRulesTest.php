@@ -46,7 +46,7 @@ class ApplyRulesTest extends TestCase
         return Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => $status,
         ]);
@@ -56,7 +56,7 @@ class ApplyRulesTest extends TestCase
     {
         return $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
         ]);
     }
 

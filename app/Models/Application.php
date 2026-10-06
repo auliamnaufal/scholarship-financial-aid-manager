@@ -97,4 +97,10 @@ class Application extends Model
             ->where('is_required', true)
             ->reject(fn (ProgramRequirement $requirement) => in_array($requirement->requirement_type_id, $answered, true));
     }
+
+    /** "5" as "Semester 5". */
+    public function getSemesterLabelAttribute(): string
+    {
+        return \App\Support\Semester::label((string) $this->semester);
+    }
 }

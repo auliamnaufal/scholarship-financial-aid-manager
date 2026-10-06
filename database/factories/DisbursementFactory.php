@@ -17,7 +17,7 @@ class DisbursementFactory extends Factory
             'seq_no' => 1,
             'amount' => fake()->numberBetween(5, 50) * 100000,
             'disbursement_date' => fake()->dateTimeBetween('-1 month', 'now'),
-            'semester' => '2026-1',
+            'semester' => '5',
         ];
     }
 }

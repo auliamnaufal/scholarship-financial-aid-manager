@@ -23,7 +23,7 @@
                     </div>
                     <div>
                         <dt class="text-slate-500">{{ __('Semester') }}</dt>
-                        <dd>{{ $application->semester }}</dd>
+                        <dd>{{ $application->semester_label }}</dd>
                     </div>
                     <div>
                         <dt class="text-slate-500">{{ __('Status') }}</dt>
@@ -162,7 +162,7 @@
                                     <td class="px-4 py-2">{{ $disbursement->seq_no }}</td>
                                     <td class="px-4 py-2">{{ \App\Support\Money::rupiah($disbursement->amount) }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->disbursement_date->format('Y-m-d') }}</td>
-                                    <td class="px-4 py-2">{{ $disbursement->semester }}</td>
+                                    <td class="px-4 py-2">{{ $disbursement->semester_label }}</td>
                                     <td class="px-4 py-2">
                                         @can('update', $disbursement)
                                             <div class="flex items-center gap-3">

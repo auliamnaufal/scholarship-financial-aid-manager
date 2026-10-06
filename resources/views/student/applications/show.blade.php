@@ -16,7 +16,7 @@
                 <dl class="grid grid-cols-2 gap-4 text-sm">
                     <div>
                         <dt class="text-slate-500">{{ __('Semester') }}</dt>
-                        <dd>{{ $application->semester }}</dd>
+                        <dd>{{ $application->semester_label }}</dd>
                     </div>
                     <div>
                         <dt class="text-slate-500">{{ __('Submitted') }}</dt>
@@ -111,7 +111,7 @@
                                     <td class="px-4 py-2">{{ $disbursement->seq_no }}</td>
                                     <td class="px-4 py-2">{{ \App\Support\Money::rupiah($disbursement->amount) }}</td>
                                     <td class="px-4 py-2">{{ $disbursement->disbursement_date->format('Y-m-d') }}</td>
-                                    <td class="px-4 py-2">{{ $disbursement->semester }}</td>
+                                    <td class="px-4 py-2">{{ $disbursement->semester_label }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

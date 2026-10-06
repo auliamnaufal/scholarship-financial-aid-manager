@@ -17,7 +17,7 @@ class ApplicationFactory extends Factory
         return [
             'student_id' => User::factory(),
             'program_id' => Program::factory(),
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => fake()->dateTimeBetween('-2 months', 'now'),
             'status' => ApplicationStatus::Submitted,
         ];

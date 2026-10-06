@@ -12,17 +12,13 @@ use App\Models\Review;
 use App\Models\StudentProfile;
 use App\Models\User;
 use App\Support\ApplyRules;
+use App\Support\Semester;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Fixed semester used across all seeded applications/disbursements.
-     */
-    private const SEMESTER = '2026-1';
-
     /**
      * Jumlah program contoh. Dibagi rata ke para koordinator, jadi satu
      * koordinator bisa mengelola lebih dari satu program.
@@ -181,7 +177,7 @@ class DatabaseSeeder extends Seeder
             $applications->push(Application::create([
                 'student_id' => $student->id,
                 'program_id' => $program->id,
-                'semester' => self::SEMESTER,
+                'semester' => Semester::forProfile($student->studentProfile),
                 'submission_date' => now()->subDays(fake()->numberBetween(5, 60)),
                 'status' => $status,
             ]));
@@ -325,7 +321,7 @@ class DatabaseSeeder extends Seeder
                     'seq_no' => $seq,
                     'amount' => (string) $amount,
                     'disbursement_date' => now()->subDays(fake()->numberBetween(1, 30)),
-                    'semester' => self::SEMESTER,
+                    'semester' => $application->semester,
                 ]);
             }
         }

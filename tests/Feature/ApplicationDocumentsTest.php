@@ -67,7 +67,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [
                 $cvId => UploadedFile::fake()->create('cv.pdf', 200, 'application/pdf'),
                 $essayId => UploadedFile::fake()->create('essay.docx', 300, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
@@ -115,7 +115,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$essayId => UploadedFile::fake()->create('essay.txt', 10, 'text/plain')],
         ])->assertSessionHasErrors("answers.{$essayId}");
 
@@ -130,7 +130,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$essayId => UploadedFile::fake()->create('essay.pdf', 6000, 'application/pdf')],
         ])->assertSessionHasErrors("answers.{$essayId}");
     }
@@ -150,7 +150,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$statement->id => 'Saya ingin menyelesaikan kuliah tanpa terbebani biaya.'],
         ])->assertSessionHasNoErrors();
 
@@ -166,7 +166,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
         ])->assertSessionHasErrors('answers.'.RequirementType::where('slug', 'cv')->value('id'));
 
         $this->assertDatabaseCount('applications', 0);
@@ -179,7 +179,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
         ])->assertSessionHasNoErrors();
 
         $this->assertDatabaseCount('applications', 1);
@@ -196,13 +196,13 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$cvId => UploadedFile::fake()->image('holiday.jpg')],
         ])->assertSessionHasErrors("answers.{$cvId}");
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             // 5 MB is the ceiling.
             'answers' => [$cvId => UploadedFile::fake()->create('cv.pdf', 6000, 'application/pdf')],
         ])->assertSessionHasErrors("answers.{$cvId}");
@@ -215,13 +215,13 @@ class ApplicationDocumentsTest extends TestCase
         $meritProgram = $this->programAskingFor([], ['min_gpa' => 3.50, 'type' => 'merit_based']);
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $meritProgram->id,
-            'semester' => '2026-1',
+            'semester' => '5',
         ])->assertSessionHasErrors('program_id');
 
         $needProgram = $this->programAskingFor([], ['max_family_income' => 40000, 'type' => 'need_based']);
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $needProgram->id,
-            'semester' => '2026-1',
+            'semester' => '5',
         ])->assertSessionHasErrors('program_id');
 
         $this->assertDatabaseCount('applications', 0);
@@ -237,7 +237,7 @@ class ApplicationDocumentsTest extends TestCase
 
         $this->actingAs($student)->post('/student/applications', [
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'answers' => [$cvId => UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf')],
         ]);
 
@@ -259,7 +259,7 @@ class ApplicationDocumentsTest extends TestCase
         $application = Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => ApplicationStatus::UnderReview,
         ]);
@@ -290,7 +290,7 @@ class ApplicationDocumentsTest extends TestCase
         $application = Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => ApplicationStatus::UnderReview,
         ]);
@@ -331,7 +331,7 @@ class ApplicationDocumentsTest extends TestCase
         $application = Application::create([
             'student_id' => $student->id,
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => ApplicationStatus::UnderReview,
         ]);

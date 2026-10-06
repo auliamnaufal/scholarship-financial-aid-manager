@@ -30,4 +30,10 @@ class Disbursement extends Model
     {
         return $this->belongsTo(Application::class);
     }
+
+    /** "5" as "Semester 5". */
+    public function getSemesterLabelAttribute(): string
+    {
+        return \App\Support\Semester::label((string) $this->semester);
+    }
 }

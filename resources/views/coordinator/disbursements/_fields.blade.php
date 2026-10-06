@@ -22,7 +22,7 @@
     <select id="semester" name="semester" class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm" required>
         @php $chosen = old('semester', $disbursement?->semester ?? $application->semester); @endphp
         @foreach (\App\Support\Semester::options(include: $chosen) as $value => $label)
-            <option value="{{ $value }}" @selected($chosen === $value)>{{ $label }}</option>
+            <option value="{{ $value }}" @selected((string) $chosen === (string) $value)>{{ $label }}</option>
         @endforeach
     </select>
     <x-input-error :messages="$errors->get('semester')" class="mt-2" />

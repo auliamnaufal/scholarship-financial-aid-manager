@@ -77,7 +77,7 @@ class ScholarshipFlowTest extends TestCase
         $program = Program::factory()->create();
         $application = $student->applications()->create([
             'program_id' => $program->id,
-            'semester' => '2026-1',
+            'semester' => '5',
             'submission_date' => now(),
             'status' => 'submitted',
         ]);
